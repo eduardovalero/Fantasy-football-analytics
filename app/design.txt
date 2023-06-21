@@ -1,0 +1,5 @@
+
+1. Get the following information
+    - List of all players.
+    - List of players in the market.
+    - List of transactions.
