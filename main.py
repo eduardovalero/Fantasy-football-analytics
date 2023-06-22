@@ -36,10 +36,9 @@ def get_players(s):
 
     # Create the players table
     if players_json['status'] == 200:
-        players_df = pd.DataFrame.from_dict(players_json['data']['players'], orient='index')
+        return pd.DataFrame.from_dict(players_json['data']['players'], orient='index')
     else:
-        raise Exception(f'Error getting list of players. Status code: {players_json["status"]}')
-    return players_df
+        raise Exception(f'Error getting list of players! Status code: {players_json["status"]}')
 
 
 def get_market(s, token):
@@ -65,10 +64,9 @@ def get_market(s, token):
     # Create the market table
     market_json = market.json()
     if market_json['status'] == 200:
-        market_df = pd.DataFrame.from_dict(market_json['data']['sales'])
+        return pd.DataFrame.from_dict(market_json['data']['sales'])
     else:
         raise Exception(f'Error getting players in the market. Status code: {market_json["status"]}')
-    return market_df
 
 
 def get_home(session, token, start):
