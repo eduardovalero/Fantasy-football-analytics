@@ -41,7 +41,7 @@ def get_players(session):
         raise Exception(f'Error getting list of players! Status code: {players_json["status"]}')
 
 
-def get_home(session, token, epoch):
+def get_market(session, token, epoch):
     '''
     Gets all transfers completed from the date passed in epoch.
     The transfer list is returned as a table.
@@ -109,8 +109,8 @@ if __name__ == '__main__':
         players_df.to_excel('./data/players.xlsx')
         # Get transfers from a specific date
         epoch = int(mktime(strptime('23-07-2022 05:00:00', '%d-%m-%Y %H:%M:%S')))
-        home_df = get_home(s, token, epoch)
+        market_df = get_market(s, token, epoch)
         # Insert column with player id and fill players who left the competition
-        home_df.insert(loc=1, column='player_name', value=home_df['player_id'].map(players_df.set_index('id')['name']))
-        home_df['player_name'].fillna(value='Missing', inplace=True)
-        home_df.to_excel('data/sales.xlsx')
+        market_df.insert(loc=1, column='player_name', value=market_df['player_id'].map(players_df.set_index('id')['name']))
+        market_df['player_name'].fillna(value='Missing', inplace=True)
+        market_df.to_excel('data/sales.xlsx')

@@ -1,13 +1,13 @@
-from flask import Flask
+from dash import Dash
+import dash_bootstrap_components as dbc
+from layout import layout
 
+# Initialize the app
+app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 
-app = Flask(__name__)
+# App layout
+app.layout = layout
 
-# Root route
-@app.route('/')
-def home():
-    return "Welcome to my Flask web app!"
-
-# Run as script
+# Run the app
 if __name__ == '__main__':
-    app.run()
+    app.run_server(debug=True)
