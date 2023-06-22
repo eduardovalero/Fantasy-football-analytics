@@ -4,16 +4,16 @@ import pandas as pd
 from config import scenario, url, credentials
 from time import strftime, strptime, localtime, mktime
 
-def login(s):
+def login(session):
     '''
     Logs in to Biwenger using the credentials set in config.py
 
-    :param s: requests session created by main loop.
+    :param session: requests session created by main loop.
     :return: session token generated upon login.
     '''
 
     # Login with credentials
-    post = s.post(url['login'], data=credentials)
+    post = session.post(url['login'], data=credentials)
 
     # Return token
     if post.status_code == 200:
@@ -22,16 +22,16 @@ def login(s):
         raise Exception(f'Cannot login! Status code = {post.status_code}')
 
 
-def get_players(s):
+def get_players(session):
     '''
     Gets all the players in the app as a table.
 
-    :param s: requests session created by main loop.
+    :param session: requests session created by main loop.
     :return: all the players table.
     '''
 
     # Get players
-    players = s.get(url=url['players'])
+    players = session.get(url=url['players'])
     players_json = json.loads(players.text.split('(', 1)[1].strip(')'))
 
     # Create the players table
@@ -41,35 +41,16 @@ def get_players(s):
         raise Exception(f'Error getting list of players! Status code: {players_json["status"]}')
 
 
-def get_market(s, token):
+def get_home(session, token, epoch):
     '''
-    Gets the players offered in the market as a table.
+    Gets all transfers completed from the date passed in epoch.
+    The transfer list is returned as a table.
 
-    :param s: requests session created by main loop.
+    :param session: requests session created by main loop.
     :param token: session token generated upon login.
-    :return: market players table.
+    :param epoch: date from which to collect transfers.
+    :return: transfers table.
     '''
-
-    # Get market
-    market = s.get(
-        url=url['market'],
-        headers={
-            'Content-Type': 'application/json',
-            'Authorization': f'Bearer {token}',
-            'X-League': scenario['X-League'],
-            'X-User': scenario['X-User']
-        }
-    )
-
-    # Create the market table
-    market_json = market.json()
-    if market_json['status'] == 200:
-        return pd.DataFrame.from_dict(market_json['data']['sales'])
-    else:
-        raise Exception(f'Error getting players in the market. Status code: {market_json["status"]}')
-
-
-def get_home(session, token, start):
 
     limit = 200
     offset = 0
@@ -91,13 +72,13 @@ def get_home(session, token, start):
 
         # Extract market and transfer sales
         for news in home.json()['data']:
-            if news['date'] < start:
+            if news['date'] < epoch:
                 return pd.DataFrame.from_dict(sales_list)
             else:
                 if news['type'] == 'market':
                     for event in news['content']:
                         sales_list.append(dict(
-                            player=event['player'],
+                            player_id=event['player'],
                             seller='market',
                             buyer=event['to']['name'],
                             amount=event['amount'],
@@ -106,7 +87,7 @@ def get_home(session, token, start):
                 elif news['type'] == 'transfer':
                     for event in news['content']:
                         sales_list.append(dict(
-                            player=event['player'],
+                            player_id=event['player'],
                             seller=event['from']['name'],
                             buyer=event['to']['name'] if 'to' in event.keys() else 'market',
                             amount=event['amount'],
@@ -125,11 +106,11 @@ if __name__ == '__main__':
         token = login(s)
         # Get players list
         players_df = get_players(s)
-        # Get market sales
-        market_df = get_market(s, token)
-        # Get transfers
-        date = '23-07-2022 05:00:00'
-        format = '%d-%m-%Y %H:%M:%S'
-        epoch = int(mktime(strptime(date, format)))
+        players_df.to_excel('./data/players.xlsx')
+        # Get transfers from a specific date
+        epoch = int(mktime(strptime('23-07-2022 05:00:00', '%d-%m-%Y %H:%M:%S')))
         home_df = get_home(s, token, epoch)
-        home_df.to_excel('sales.xlsx')
+        # Insert column with player id and fill players who left the competition
+        home_df.insert(loc=1, column='player_name', value=home_df['player_id'].map(players_df.set_index('id')['name']))
+        home_df['player_name'].fillna(value='Missing', inplace=True)
+        home_df.to_excel('data/sales.xlsx')
