@@ -22,34 +22,40 @@ url = {
 
 chart_info = {
 
-    'boxplot': '''
+    'payments': '''
                For all the members, display a distribution of the amounts that
                they have spent in player signings during the season.
                ''',
 
-    'sankey': '''
-              This chart shows the flux of transactions between the members of 
+    'links': '''
+              Show the flux of transactions between the members of 
               the league. Hover a particular link to display the number of 
               purchases between the two players connected by the link.
               ''',
 
-    'scatter': '''
-               This chart displays all the purchases performed by the members 
+    'signings': '''
+               Display all the purchases performed by the members 
                of the league. For a particular player, hover to show the market
                value and the price paid by the member.
                ''',
 
-    'bubble': '''
-              This chart shows statistics that evaluate the performance of the
-              players.
-              '''
+    'performance': '''
+              Show statistics that evaluate the performance of the
+              players, like millions per point or goals per 90 minutes.
+              ''',
+
+    'budget': '''
+                Select the initial budget in millions and the actual budget will be 
+                calculated based on the history of transactions..
+                '''
 }
 
 chart_titles = {
-    'boxplot': 'How much do members pay to sign?',
-    'sankey': 'How do members trade players?',
-    'scatter': 'History of signings',
-    'bubble': 'How do players perform?',
+    'payments': 'How much do members pay to sign?',
+    'links': 'How do members trade players?',
+    'signings': 'History of signings',
+    'budget': 'Which is the budget of the league members?',
+    'performance': 'How do players perform?',
 }
 
 page_info = {
@@ -63,10 +69,7 @@ page_info = {
     'players': '''
                This page provides multiple tools to analyze players in the
                league. This includes ratios like points per game, points per 
-               million, etc. This is useful to find most profitable and 
-               effective players, among other things.
-
-               Upload a players.csv file to run analytics.
+               million, etc.
                '''
 }
 
@@ -79,20 +82,3 @@ page_suptitles = {
     'market': 'Market metrics',
     'players': 'Players performance'
 }
-
-market_guide = '''
-               Click the 'Market' tab in the header of the app. Then, 
-               drag and drop the Excel file containing all the market
-               information. Lastly, select the chart you want to 
-               display from the menu and click 'Display'. You can interact 
-               with the charts using the controls in the top-right corner.
-               '''
-
-player_guide = '''
-               Click the 'Players' tab in the header of the app. Then,
-               drag and drop the Excel file containing all the information 
-               about the players in the League. Finally, select the chart you 
-               want to display from the menu and click 'Display'. As with the 
-               market analytics, you can interact with the charts using the 
-               controls showed in the top-right corner.
-               '''

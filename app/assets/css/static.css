@@ -2,15 +2,11 @@
   --sidebar-width: 30%;
 }
 
-.my-header{
-    position:absolute;
-    left:0;
-    right:0;
-    height: 10%;
-    border-radius: 0px;
+.accordion-item{
+    font-style: italic;
 }
 
-.my-sidebar {
+#sidebar {
     position: absolute;
     top: 10%;
     height: 100%,
@@ -21,10 +17,6 @@
     background-color: #f8f9fa;
 }
 
-.my-col {
-    border: 1px solid blue;
-}
-
 #market-accordion, #player-accordion, .accordion-button{
     font-size: 1.15rem;
     text-align: justify;
@@ -33,7 +25,6 @@
 
 #my-chart{
     position:absolute;
-    top: 5%;
     left: var(--sidebar-width);
     width: 70%;
     height: 100%;
