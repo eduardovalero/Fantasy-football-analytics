@@ -6,15 +6,20 @@
     font-style: italic;
 }
 
-#sidebar {
-    position: absolute;
-    top: 10%;
-    height: 100%,
-    left: 0;
-    bottom: 0;
-    width: var(--sidebar-width);
-    padding: 2rem 2rem;
-    background-color: #f8f9fa;
+#navbar > *{
+    display: flex;
+    align-items: center;
+    justify-content:center;
+    margin: 0.5rem;
+}
+
+#sidebar, #chart, #login-info{
+    height: 100%;
+    padding: 2.5rem;
+}
+
+#sidebar, #login-info{
+    background-color: #E9ECEF;
 }
 
 #market-accordion, #player-accordion, .accordion-button{
@@ -23,15 +28,11 @@
     color: #2c8cff;
 }
 
-#my-chart{
-    position:absolute;
-    left: var(--sidebar-width);
-    width: 70%;
-    height: 100%;
-    padding: 5rem;
-}
-
 .btn-accordion{
     background-color: #2c8cff;
     border-color: #2c8cff;
+}
+
+#market-btn, #players-btn{
+    margin: 0.5rem;
 }

@@ -1,15 +1,5 @@
 
-# ----------------------------- API variables -----------------------------
-
-credentials = {
-    'email': 'edpvalero@gmail.com',
-    'password': '24204490aF:',
-}
-
-scenario = {
-    'X-User': '7820380',
-    'X-League': '512626'
-}
+# --------------------------------- API  -----------------------------------
 
 url = {
     'login': 'https://biwenger.as.com/api/v2/auth/login',
@@ -18,7 +8,14 @@ url = {
 }
 
 
-# ----------------------------- Layout variables -----------------------------
+# ----------------------------------- Chart ---------------------------------
+chart_titles = {
+    'payments': 'How much do members pay to sign?',
+    'links': 'How do members trade players?',
+    'signings': 'History of signings',
+    'budget': 'Which is the budget of the league members?',
+    'performance': 'How do players perform?',
+}
 
 chart_info = {
 
@@ -50,13 +47,17 @@ chart_info = {
                 '''
 }
 
-chart_titles = {
-    'payments': 'How much do members pay to sign?',
-    'links': 'How do members trade players?',
-    'signings': 'History of signings',
-    'budget': 'Which is the budget of the league members?',
-    'performance': 'How do players perform?',
+# --------------------------------- Pages in the app --------------------------------
+page_suptitles = {
+    'market': 'Market metrics',
+    'players': 'Players performance'
 }
+
+page_titles = {
+    'market': 'Analyze the transactions made between league members',
+    'players': 'Explore different performance metrics from La Liga players'
+}
+
 
 page_info = {
 
@@ -73,12 +74,3 @@ page_info = {
                '''
 }
 
-page_titles = {
-    'market': 'Analyze the transactions made between the league members.',
-    'players': 'Explore different performance metrics from La Liga players.'
-}
-
-page_suptitles = {
-    'market': 'Market metrics',
-    'players': 'Players performance'
-}
