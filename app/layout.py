@@ -76,7 +76,7 @@ core = dbc.Row(
                             title=chart_titles['budget'],
                             children=[
                                 html.P(chart_info['budget']),
-                                dcc.Slider(0, 100, 1, id='input-budget', value=20, marks=None, tooltip={"placement": "bottom", "always_visible": True}),
+                                dcc.Slider(0, 100, 1, id='budget-slider', value=20, marks=None, tooltip={"placement": "bottom", "always_visible": True}),
                                 dbc.Button('Calculate', className='btn-accordion mt-2', id='btn-budget', n_clicks=0),
                             ]
                         )
@@ -101,10 +101,21 @@ core = dbc.Row(
         dbc.Col(
             id='chart',
             width=6,
-            children=[html.Div()]
+            children=[dbc.Spinner(
+                children=[
+                    html.Div(
+                        children=[dcc.Graph(id='chart-content', figure={})],
+                        style={'display': 'none'},
+                        id='chart-container'
+                    )],
+                fullscreen=True,
+                color='primary',
+                spinner_style={'width': '10rem', 'height': '10rem'},
+                fullscreen_style={'opacity': '0.5'}
+            )]
         ),
         dbc.Col(
-            id='login-info',
+            id='news-info',
             width=3,
             children=[
             ]
@@ -158,14 +169,14 @@ modal = dbc.Modal(
                     )
                 ],
             ),
-            dbc.ModalFooter(
+            dbc.ModalFooter([
                 dbc.Button(
                     id="modal-btn",
                     children=["Sign in"],
                     className="ms-auto",
                     n_clicks=0,
                 )
-            ),
+            ]),
         ],
     )
 
@@ -176,10 +187,13 @@ layout = dbc.Container(
         modal,
         header,
         core,
-        dcc.Store(id='market-data'),
-        dcc.Store(id='rounds-data'),
-        dcc.Store(id='players-data'),
-        dcc.Store(id='credentials-data')
+        dbc.Spinner(
+            children=[dcc.Store(id='app-data')],
+            fullscreen=True,
+            color='primary',
+            spinner_style={'width': '10rem', 'height': '10rem'},
+            fullscreen_style={'opacity': '0.5', 'position': 'fixed', 'z-index': '999999'}
+        )
     ],
     fluid=True,
     style={'padding': '0px'}

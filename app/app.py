@@ -6,7 +6,7 @@ from pandas import json_normalize
 from layout import layout
 import dash_bootstrap_components as dbc
 from time import strftime, strptime, localtime, mktime
-from config import page_info, page_titles, page_suptitles
+from config import page_info, page_titles, page_suptitles, epoch
 from dash import Dash, dcc, no_update, Input, Output, State, callback_context
 import functions as api
 
@@ -20,9 +20,7 @@ app.layout = layout
 
 # ------------------------ Login callback ----------------------------
 @app.callback(
-    Output('market-data', 'data'),
-    Output('rounds-data', 'data'),
-    Output('players-data', 'data'),
+    Output('app-data', 'data'),
     Output('modal-text', 'children'),
     Output("modal", "is_open"),
     Input('modal-btn', 'n_clicks'),
@@ -36,7 +34,6 @@ def login(button, email, password, user, league):
     try:
         session, token = api.login(email, password)
         # Request market data
-        epoch = int(mktime(strptime('23-06-2022 05:00:00', '%d-%m-%Y %H:%M:%S')))
         market_df, rounds_df = api.get_market(session, token, epoch, league, user)
         market_json = market_df.to_json()
         # Remove duplicates from rounds_df (this happens when a player performance is corrected)
@@ -45,11 +42,13 @@ def login(button, email, password, user, league):
         # Request players data
         players_df = api.get_players(session)
         players_json = players_df.to_json()
+        # Form app data dict
+        app_data = {'market': market_json, 'rounds': rounds_json, 'players': players_json}
         # Return on success
-        return market_json, rounds_json, players_json, no_update, False
+        return app_data, no_update, False
     except:
         # Return on exception
-        return no_update, no_update, no_update, 'Error during loging. Try again.', no_update
+        return no_update, 'Error during loging. Try again.', no_update
 
 
 # ------------------------ Routes callback ----------------------------
@@ -72,31 +71,31 @@ def update_accordion(path):
 
 # ------------------------ Chart callback ----------------------------
 @app.callback(
-    Output('chart', 'children'),
+    Output('chart-content', 'figure'),
+    Output('chart-container', 'style'),
     Input('btn-budget', 'n_clicks'),
-    State('market-data', 'data'),
-    State('rounds-data', 'data'),
-    State('input-budget', 'value'),
+    State('app-data', 'data'),
+    State('budget-slider', 'value'),
     prevent_initial_call=True
 )
-def update_chart(button, market_data, rounds_data, initial_budget):
+def update_chart(button, app_data, initial_budget):
     # Get trigger
     trigger = callback_context.triggered[0]['prop_id'].split('.')[0]
     # Check trigger element
     if trigger == 'btn-budget':
         # Update chart
-        market_df = pd.DataFrame(json.loads(market_data))
-        rounds_df = pd.DataFrame(json.loads(rounds_data))
+        market_df = pd.DataFrame(json.loads(app_data['market']))
+        rounds_df = pd.DataFrame(json.loads(app_data['rounds']))
         fig = api.plot_budgets(initial_budget, market_df, rounds_df)
-        return dcc.Graph(figure=fig)
+        return fig, {'display': 'block'}
     else:
-        return no_update
+        return no_update, no_update
 
 
 # ------------------------ Run the app ----------------------------
 if __name__ == '__main__':
     app.run_server(
-        debug=False,
+        debug=True,
         dev_tools_ui=False,
         dev_tools_props_check=False
     )

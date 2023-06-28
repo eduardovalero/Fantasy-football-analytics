@@ -1,3 +1,4 @@
+from time import  strptime, mktime
 
 # --------------------------------- API  -----------------------------------
 
@@ -47,7 +48,7 @@ chart_info = {
                 '''
 }
 
-# --------------------------------- Pages in the app --------------------------------
+# ------------------------------ Pages in the app -----------------------------
 page_suptitles = {
     'market': 'Market metrics',
     'players': 'Players performance'
@@ -73,4 +74,8 @@ page_info = {
                million, etc.
                '''
 }
+
+
+# ----------------------------------- Other ---------------------------------
+epoch = int(mktime(strptime('23-07-2022 05:00:00', '%d-%m-%Y %H:%M:%S')))
 
