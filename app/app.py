@@ -7,7 +7,7 @@ from layout import layout
 import dash_bootstrap_components as dbc
 from time import strftime, strptime, localtime, mktime
 from config import page_info, page_titles, page_suptitles, epoch
-from dash import Dash, dcc, no_update, Input, Output, State, callback_context
+from dash import Dash, dcc, no_update, Input, Output, State, ctx
 import functions as api
 
 # ------------------------ Initialization ----------------------------
@@ -44,13 +44,14 @@ def login(button, email, password, user, league):
             # players_df = api.get_players(session)
             # players_json = players_df.to_json()
             # # Form app data dict
-            # app_data = {'market': market_json, 'rounds': rounds_json, 'players': players_json}
+            # app_data = {'market': market_json, 'rounds': rounds_json, 'players': players_json, 'email': email}
             # Return on success
             # *****************
             app_data ={
                 'market': pd.read_excel('./data/market.xlsx').to_json(),
                 'rounds': pd.read_excel('./data/rounds.xlsx').to_json(),
                 'players': pd.read_excel('./data/players.xlsx').to_json(),
+                'email': 'edpvalero@gmail.com'
             }
             # *****************
             return app_data, no_update, False
@@ -84,17 +85,21 @@ def update_accordion(path):
     Output('chart-content', 'figure'),
     Output('chart-container', 'style'),
     Input('btn-budget', 'n_clicks'),
+    Input('btn-efficiency', 'n_clicks'),
     State('app-data', 'data'),
     State('budget-slider', 'value'),
     prevent_initial_call=True
 )
-def update_chart(button, app_data, initial_budget):
-    # Check trigger element
-    if button:
-        # Update chart
+def update_chart(btn_budget, btn_efficiency, app_data, initial_budget):
+    trigger = ctx.triggered[0]["prop_id"].split(".")[0]
+    if trigger == 'btn-budget':
         market_df = pd.DataFrame(json.loads(app_data['market']))
         rounds_df = pd.DataFrame(json.loads(app_data['rounds']))
         fig = api.plot_budgets(initial_budget, market_df, rounds_df)
+        return fig, {'display': 'block'}
+    elif trigger == 'btn-efficiency':
+        players_df = pd.DataFrame(json.loads(app_data['players']))
+        fig = api.plot_player_efficiency(players_df)
         return fig, {'display': 'block'}
     else:
         return no_update, no_update

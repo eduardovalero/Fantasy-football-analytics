@@ -14,8 +14,8 @@ chart_titles = {
     'payments': 'How much do members pay to sign?',
     'links': 'How do members trade players?',
     'signings': 'History of signings',
-    'budget': 'Which is the budget of the league members?',
-    'performance': 'How do players perform?',
+    'budget': 'Balance of the league members',
+    'performance': 'Player efficiency',
 }
 
 chart_info = {
@@ -38,14 +38,15 @@ chart_info = {
                ''',
 
     'performance': '''
-              Show statistics that evaluate the performance of the
-              players, like millions per point or goals per 90 minutes.
+              Estimate player efficiency based on performance with respect
+              to market value. Hover the players to view the exact values
+              of this metric. 
               ''',
 
     'budget': '''
-                Select the initial budget in millions and the actual budget will be 
-                calculated based on the history of transactions..
-                '''
+              Select the initial budget in millions and the actual budget will be 
+              calculated based on the history of transactions..
+              '''
 }
 
 # ------------------------------ Pages in the app -----------------------------

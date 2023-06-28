@@ -6,10 +6,6 @@ body{
   overflow-x:hidden;
 }
 
-.accordion-item{
-    font-style: italic;
-}
-
 #navbar > *{
     display: flex;
     align-items: center;

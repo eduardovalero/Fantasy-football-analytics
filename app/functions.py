@@ -2,6 +2,7 @@ import json
 import requests
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objs as go
 from config import url
 from time import strftime, localtime
 
@@ -118,6 +119,14 @@ def get_market(session, token, epoch, league, user):
 
 
 def plot_budgets(initial_budget, market_df, rounds_df):
+    '''
+    Creates a barplot showing the economic balance of the league members.
+
+    :param initial_budget: initial budget in (€) millions set by the league.
+    :param market_df: market dataframe.
+    :param rounds_df: rounds dataframe.
+    :return: barplot.
+    '''
 
     # Sells per member
     sell_df = market_df.groupby('seller')['amount'].sum().reset_index()
@@ -135,6 +144,48 @@ def plot_budgets(initial_budget, market_df, rounds_df):
         'member': bonus_df.index.to_list(),
         'balance': (sell_df['amount'] - buy_df['amount'] + initial_budget*1e6 + bonus_df['bonus'])/1e6
     })
+    # Create figure
     fig = px.bar(final_df, x='member', y='balance', color='balance')
+    # Update layout
+    fig.update_layout(
+        title={'text': 'Financial balance', 'x': 0.5, 'y': 0.95},
+        font={'size': 16, 'family': 'sans-serif'}
+    )
+
+    return fig
+
+def plot_player_efficiency(players_df):
+    '''
+    Plots a scatter plot with the effiency of the players.
+
+    :param players_df: players dataframe.
+    :return: scatter plot.
+    '''
+
+    # Process data
+    df = players_df.copy()
+    df['played'] = df['playedHome'] + df['playedAway']
+    df.replace({'position': {1: 'keeper', 2: 'defender', 3: 'midfielder', 4: 'forward', 5: 'trainer'}}, inplace=True)
+    # Drop players who did not perform
+    df.drop(labels=df[df["points"] <= 0].index, inplace=True)
+    df.drop(labels=df[df["played"] <= 0].index, inplace=True)
+    # Estimate points/game and points/million
+    df["points_per_game"] = df["points"] / df["played"]
+    df["points_per_mill"] = df["points"] / (df["price"] / 1e6)
+    # Create figure
+    fig = px.scatter(
+        data_frame=df, x="points_per_game", y="points_per_mill",
+        size="points", color="position", hover_name="name",
+        labels={
+            "points_per_game": "Points per game",
+            "points_per_mill": "Points per million",
+            "position": "Position",
+            "points": "Points"},
+    )
+    # Update layout
+    fig.update_layout(
+        title={'text': 'Player efficiency', 'x': 0.5, 'y': 0.95},
+        font={'size': 16, 'family': 'sans-serif'}
+    )
 
     return fig

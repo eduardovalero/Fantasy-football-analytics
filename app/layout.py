@@ -9,32 +9,31 @@ header = dbc.Row(
     dbc.Navbar(
         id='navbar',
         children=[
-            dbc.Col(
                 html.Img(
                     src='assets/favicon.svg',
-                    width='100vh'),
-                width=1),
-            dbc.Col(
+                    width='75vh',
+                    style={'margin-left': '3rem'}
+                ),
                 dbc.NavbarBrand(
                     children='Biwenger analytics',
-                    style={'font-weight': '600'}),
-                width=1),
-            dbc.Col([
-                    dbc.Button(
-                        id='market-btn',
-                        n_clicks=0,
-                        children='Market',
-                        href='/',
-                        outline=True,
-                        color='light'),
-                    dbc.Button(
-                        id='players-btn',
-                        n_clicks=0,
-                        children='Players',
-                        href='/players',
-                        outline=True,
-                        color='light')],
-                width=1),
+                    style={'font-weight': '600'}
+                ),
+                dbc.Button(
+                    id='market-btn',
+                    n_clicks=0,
+                    children='Market',
+                    href='/',
+                    outline=True,
+                    color='light'
+                ),
+                dbc.Button(
+                    id='players-btn',
+                    n_clicks=0,
+                    children='Players',
+                    href='/players',
+                    outline=True,
+                    color='light'
+                )
         ],
         color='#1C3146',
         dark=True,
@@ -92,7 +91,7 @@ core = dbc.Row(
                             title=chart_titles['performance'],
                             children=[
                                 html.P(chart_info['performance']),
-                                dbc.Button('Display', className='btn-accordion', id='btn-performance', n_clicks=0)
+                                dbc.Button('Display', className='btn-accordion', id='btn-efficiency', n_clicks=0)
                             ]
                         )
                     ]
@@ -119,14 +118,18 @@ core = dbc.Row(
             id='twitter-feed',
             width=3,
             children=[
-                html.Iframe(
-                    id='twitter-widget',
-                    srcDoc='''
-                        <a class="twitter-timeline" data-theme="light" href="https://twitter.com/JornadaPerfecta?ref_src=twsrc%5Etfw"></a> 
-                        <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-                    ''',
-                    style={'width': '100%', 'height': '100%', 'margin': '0rem'}
+                html.Div(
+                    html.Iframe(
+                        id='twitter-widget',
+                        srcDoc='''
+                            <a class="twitter-timeline" data-theme="light" href="https://twitter.com/biwenger?ref_src=twsrc%5Etfw"></a> 
+                            <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+                        ''',
+                        style={'width': '100%', 'height': '100%', 'margin': '0rem', 'overflow': 'hidden'},
+                    ),
+                    style={'height': '100%', 'margin': '1rem'}
                 )
+
             ]
         )
     ]
