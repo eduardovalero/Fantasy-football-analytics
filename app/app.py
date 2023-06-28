@@ -31,24 +31,34 @@ app.layout = layout
     prevent_initial_call=True
 )
 def login(button, email, password, user, league):
-    try:
-        session, token = api.login(email, password)
-        # Request market data
-        market_df, rounds_df = api.get_market(session, token, epoch, league, user)
-        market_json = market_df.to_json()
-        # Remove duplicates from rounds_df (this happens when a player performance is corrected)
-        rounds_df.drop_duplicates(subset=['round', 'member'], inplace=True)
-        rounds_json = rounds_df.to_json()
-        # Request players data
-        players_df = api.get_players(session)
-        players_json = players_df.to_json()
-        # Form app data dict
-        app_data = {'market': market_json, 'rounds': rounds_json, 'players': players_json}
-        # Return on success
-        return app_data, no_update, False
-    except:
-        # Return on exception
-        return no_update, 'Error during loging. Try again.', no_update
+    if button:
+        try:
+            # session, token = api.login(email, password)
+            # # Request market data
+            # market_df, rounds_df = api.get_market(session, token, epoch, league, user)
+            # market_json = market_df.to_json()
+            # # Remove duplicates from rounds_df (this happens when a player performance is corrected)
+            # rounds_df.drop_duplicates(subset=['round', 'member'], inplace=True)
+            # rounds_json = rounds_df.to_json()
+            # # Request players data
+            # players_df = api.get_players(session)
+            # players_json = players_df.to_json()
+            # # Form app data dict
+            # app_data = {'market': market_json, 'rounds': rounds_json, 'players': players_json}
+            # Return on success
+            # *****************
+            app_data ={
+                'market': pd.read_excel('./data/market.xlsx').to_json(),
+                'rounds': pd.read_excel('./data/rounds.xlsx').to_json(),
+                'players': pd.read_excel('./data/players.xlsx').to_json(),
+            }
+            # *****************
+            return app_data, no_update, False
+        except:
+            # Return on exception
+            return no_update, 'Error during loging. Try again.', no_update
+    else:
+        return no_update, no_update, no_update
 
 
 # ------------------------ Routes callback ----------------------------
@@ -79,10 +89,8 @@ def update_accordion(path):
     prevent_initial_call=True
 )
 def update_chart(button, app_data, initial_budget):
-    # Get trigger
-    trigger = callback_context.triggered[0]['prop_id'].split('.')[0]
     # Check trigger element
-    if trigger == 'btn-budget':
+    if button:
         # Update chart
         market_df = pd.DataFrame(json.loads(app_data['market']))
         rounds_df = pd.DataFrame(json.loads(app_data['rounds']))

@@ -2,6 +2,10 @@
   --sidebar-width: 30%;
 }
 
+body{
+  overflow-x:hidden;
+}
+
 .accordion-item{
     font-style: italic;
 }

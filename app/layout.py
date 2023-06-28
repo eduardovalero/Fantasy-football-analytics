@@ -38,13 +38,14 @@ header = dbc.Row(
         ],
         color='#1C3146',
         dark=True,
+        style={'margin': '0rem !important'}
     ),
 )
 
 # --------------------------- App body  ---------------------------------
 core = dbc.Row(
     id='core',
-    style={'height': '100vh'},
+    style={'height': '100vh', 'margin-right': '0rem'},
     children=[
         dbc.Col(
             id='sidebar',
@@ -66,7 +67,7 @@ core = dbc.Row(
                     id='sidebar-info',
                     children=page_info['market'],
                     className='lead',
-                    style={'font-size': '1.5rem', 'font-weight': '400', 'text-align': 'justify'}),
+                    style={'font-size': '1.25rem', 'font-weight': '400', 'text-align': 'justify'}),
                 dbc.Accordion(
                     id='market-accordion',
                     start_collapsed=True,
@@ -115,9 +116,17 @@ core = dbc.Row(
             )]
         ),
         dbc.Col(
-            id='news-info',
+            id='twitter-feed',
             width=3,
             children=[
+                html.Iframe(
+                    id='twitter-widget',
+                    srcDoc='''
+                        <a class="twitter-timeline" data-theme="light" href="https://twitter.com/JornadaPerfecta?ref_src=twsrc%5Etfw"></a> 
+                        <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+                    ''',
+                    style={'width': '100%', 'height': '100%', 'margin': '0rem'}
+                )
             ]
         )
     ]
@@ -196,5 +205,5 @@ layout = dbc.Container(
         )
     ],
     fluid=True,
-    style={'padding': '0px'}
+    style={'padding': '0rem', 'margin': '0rem'}
 )
