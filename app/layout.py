@@ -79,6 +79,14 @@ core = dbc.Row(
                                 dcc.Slider(0, 100, 1, id='budget-slider', value=20, marks=None, tooltip={"placement": "bottom", "always_visible": True}),
                                 dbc.Button('Calculate', className='btn-accordion mt-2', id='btn-budget', n_clicks=0),
                             ]
+                        ),
+                        dbc.AccordionItem(
+                            id='links-accordion',
+                            title=chart_titles['links'],
+                            children=[
+                                html.P(chart_info['links']),
+                                dbc.Button('Display', className='btn-accordion mt-2', id='btn-links', n_clicks=0),
+                            ]
                         )
                     ]
                 ),

@@ -22,7 +22,7 @@ app.layout = layout
 @app.callback(
     Output('app-data', 'data'),
     Output('modal-text', 'children'),
-    Output("modal", "is_open"),
+    Output('modal', 'is_open'),
     Input('modal-btn', 'n_clicks'),
     State('modal-email', 'value'),
     State('modal-password', 'value'),
@@ -64,18 +64,18 @@ def login(button, email, password, user, league):
 
 # ------------------------ Routes callback ----------------------------
 @app.callback(
-    Output("sidebar-suptitle", "children"),
-    Output("sidebar-title", "children"),
-    Output("sidebar-info", "children"),
-    Output("market-accordion", "style"),
-    Output("player-accordion", "style"),
-    Input("url", "pathname")
+    Output('sidebar-suptitle', 'children'),
+    Output('sidebar-title', 'children'),
+    Output('sidebar-info', 'children'),
+    Output('market-accordion', 'style'),
+    Output('player-accordion', 'style'),
+    Input('url', 'pathname')
 )
 def update_accordion(path):
-    if path == "/":
-        return page_suptitles['market'], page_titles['market'], page_info["market"], {"display": "block"}, {"display": "none"}
-    elif path == "/players":
-        return page_suptitles['players'], page_titles['players'], page_info["players"], {"display": "none"}, {"display": "block"}
+    if path == '/':
+        return page_suptitles['market'], page_titles['market'], page_info['market'], {'display': 'block'}, {'display': 'none'}
+    elif path == '/players':
+        return page_suptitles['players'], page_titles['players'], page_info['players'], {'display': 'none'}, {'display': 'block'}
     else:
         pass
 
@@ -86,23 +86,29 @@ def update_accordion(path):
     Output('chart-container', 'style'),
     Input('btn-budget', 'n_clicks'),
     Input('btn-efficiency', 'n_clicks'),
+    Input('btn-links', 'n_clicks'),
     State('app-data', 'data'),
     State('budget-slider', 'value'),
     prevent_initial_call=True
 )
-def update_chart(btn_budget, btn_efficiency, app_data, initial_budget):
-    trigger = ctx.triggered[0]["prop_id"].split(".")[0]
+def update_chart(btn_budget, btn_efficiency, btn_links, app_data, initial_budget):
+    trigger = ctx.triggered[0]['prop_id'].split('.')[0]
+    market_df = pd.DataFrame(json.loads(app_data['market']))
+    rounds_df = pd.DataFrame(json.loads(app_data['rounds']))
+    players_df = pd.DataFrame(json.loads(app_data['players']))
     if trigger == 'btn-budget':
-        market_df = pd.DataFrame(json.loads(app_data['market']))
-        rounds_df = pd.DataFrame(json.loads(app_data['rounds']))
         fig = api.plot_budgets(initial_budget, market_df, rounds_df)
-        return fig, {'display': 'block'}
+        show = {'display': 'block'}
     elif trigger == 'btn-efficiency':
-        players_df = pd.DataFrame(json.loads(app_data['players']))
         fig = api.plot_player_efficiency(players_df)
-        return fig, {'display': 'block'}
+        show = {'display': 'block'}
+    elif trigger == 'btn-links':
+        fig = api.plot_links(market_df)
+        show = {'display': 'block'}
     else:
-        return no_update, no_update
+        fig = no_update
+        show = no_update
+    return fig, show
 
 
 # ------------------------ Run the app ----------------------------

@@ -1,10 +1,13 @@
 import json
 import requests
+import numpy as np
 import pandas as pd
+import seaborn as sns
 import plotly.express as px
 import plotly.graph_objs as go
 from config import url
 from time import strftime, localtime
+
 
 def login(email, password):
     '''
@@ -149,9 +152,9 @@ def plot_budgets(initial_budget, market_df, rounds_df):
     # Update layout
     fig.update_layout(
         title={'text': 'Financial balance', 'x': 0.5, 'y': 0.95},
-        font={'size': 16, 'family': 'sans-serif'}
+        font={'size': 16, 'family': 'sans-serif'},
+        height=750
     )
-
     return fig
 
 def plot_player_efficiency(players_df):
@@ -167,25 +170,67 @@ def plot_player_efficiency(players_df):
     df['played'] = df['playedHome'] + df['playedAway']
     df.replace({'position': {1: 'keeper', 2: 'defender', 3: 'midfielder', 4: 'forward', 5: 'trainer'}}, inplace=True)
     # Drop players who did not perform
-    df.drop(labels=df[df["points"] <= 0].index, inplace=True)
-    df.drop(labels=df[df["played"] <= 0].index, inplace=True)
+    df.drop(labels=df[df['points'] <= 0].index, inplace=True)
+    df.drop(labels=df[df['played'] <= 0].index, inplace=True)
     # Estimate points/game and points/million
-    df["points_per_game"] = df["points"] / df["played"]
-    df["points_per_mill"] = df["points"] / (df["price"] / 1e6)
+    df['points_per_game'] = df['points'] / df['played']
+    df['points_per_mill'] = df['points'] / (df['price'] / 1e6)
     # Create figure
     fig = px.scatter(
-        data_frame=df, x="points_per_game", y="points_per_mill",
-        size="points", color="position", hover_name="name",
+        data_frame=df, x='points_per_game', y='points_per_mill',
+        size='points', color='position', hover_name='name',
         labels={
-            "points_per_game": "Points per game",
-            "points_per_mill": "Points per million",
-            "position": "Position",
-            "points": "Points"},
+            'points_per_game': 'Points per game',
+            'points_per_mill': 'Points per million',
+            'position': 'Position',
+            'points': 'Points'},
     )
     # Update layout
     fig.update_layout(
         title={'text': 'Player efficiency', 'x': 0.5, 'y': 0.95},
-        font={'size': 16, 'family': 'sans-serif'}
+        font={'size': 16, 'family': 'sans-serif'},
+        height=750
     )
-
     return fig
+
+
+def plot_links(market_df):
+    '''
+    Renders a chord chart displaying financial transactions
+    between league members.
+
+    :param market_df: market dataframe
+    :return: sankey diagram.
+    '''
+    # Process data
+    df = market_df.copy()
+    # Get transactions between league members
+    grouped = df.groupby(by=['seller', 'buyer'], dropna=False)
+    grouped = grouped.player_id.count().unstack(fill_value=0)
+    # Drop market transactions
+    grouped.drop(labels='market', axis=0, inplace=True)
+    grouped.drop(labels='market', axis=1, inplace=True)
+    # Create numpy array for the chart
+    data = grouped.to_numpy()
+    # Format data for sankey diagram
+    members = list(grouped.columns)
+    label = members * 2
+    source = np.repeat(list(range(0, len(members))), len(members))
+    target = list(range(len(members), len(members) * 2)) * len(members)
+    value = data.reshape((-1, 1))
+    # Data to dict, dict to Sankey
+    color = sns.color_palette('deep').as_hex()[:len(members)]
+    color_node = color * 2
+    link = {'source': source, 'target': target, 'value': value}
+    node = {'label': label, 'pad': 50, 'thickness': 10, 'color': color_node}
+    sankey = go.Sankey(link=link, node=node)
+    # Create figure
+    fig = go.Figure(data=sankey)
+    fig.update_layout(
+        title_text='Member financial links',
+        title_x=0.5,
+        font_size=16,
+        height=750
+    )
+    return fig
+

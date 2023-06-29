@@ -26,9 +26,9 @@ chart_info = {
                ''',
 
     'links': '''
-              Show the flux of transactions between the members of 
-              the league. Hover a particular link to display the number of 
-              purchases between the two players connected by the link.
+              Show the flux of transactions between league members.
+              Hover a particular link to display the number of operations
+              between the two members connected by the link.
               ''',
 
     'signings': '''
