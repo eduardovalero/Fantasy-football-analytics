@@ -13,7 +13,7 @@ url = {
 chart_titles = {
     'payments': 'How much do members pay to sign?',
     'links': 'How do members trade players?',
-    'signings': 'History of signings',
+    'purchases': 'History of purchases',
     'budget': 'Balance of the league members',
     'performance': 'Player efficiency',
 }
@@ -22,7 +22,7 @@ chart_info = {
 
     'payments': '''
                For all the members, display a distribution of the amounts that
-               they have spent in player signings during the season.
+               they have spent in player purchases during the season.
                ''',
 
     'links': '''
@@ -31,7 +31,7 @@ chart_info = {
               between the two members connected by the link.
               ''',
 
-    'signings': '''
+    'purchases': '''
                Display all the purchases performed by the members 
                of the league. For a particular player, hover to show the market
                value and the price paid by the member.

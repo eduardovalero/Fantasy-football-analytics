@@ -87,6 +87,14 @@ core = dbc.Row(
                                 html.P(chart_info['links']),
                                 dbc.Button('Display', className='btn-accordion mt-2', id='btn-links', n_clicks=0),
                             ]
+                        ),
+                        dbc.AccordionItem(
+                            id='purchases-accordion',
+                            title=chart_titles['purchases'],
+                            children=[
+                                html.P(chart_info['purchases']),
+                                dbc.Button('Display', className='btn-accordion mt-2', id='btn-purchases', n_clicks=0),
+                            ]
                         )
                     ]
                 ),

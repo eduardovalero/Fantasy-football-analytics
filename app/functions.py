@@ -9,6 +9,17 @@ from config import url
 from time import strftime, localtime
 
 
+# Global variables
+layout_options = dict(
+    font={'size': 16, 'family': 'sans-serif'},
+    height=750,
+    paper_bgcolor='rgb(243, 243, 243)',
+    plot_bgcolor='rgb(243, 243, 243)',
+    xaxis={'gridwidth': 2},
+    yaxis={'gridwidth': 2}
+)
+
+
 def login(email, password):
     '''
     Logs in to Biwenger using the credentials set in config.py
@@ -147,13 +158,13 @@ def plot_budgets(initial_budget, market_df, rounds_df):
         'member': bonus_df.index.to_list(),
         'balance': (sell_df['amount'] - buy_df['amount'] + initial_budget*1e6 + bonus_df['bonus'])/1e6
     })
+
     # Create figure
     fig = px.bar(final_df, x='member', y='balance', color='balance')
     # Update layout
     fig.update_layout(
         title={'text': 'Financial balance', 'x': 0.5, 'y': 0.95},
-        font={'size': 16, 'family': 'sans-serif'},
-        height=750
+        **layout_options
     )
     return fig
 
@@ -175,6 +186,7 @@ def plot_player_efficiency(players_df):
     # Estimate points/game and points/million
     df['points_per_game'] = df['points'] / df['played']
     df['points_per_mill'] = df['points'] / (df['price'] / 1e6)
+
     # Create figure
     fig = px.scatter(
         data_frame=df, x='points_per_game', y='points_per_mill',
@@ -188,8 +200,7 @@ def plot_player_efficiency(players_df):
     # Update layout
     fig.update_layout(
         title={'text': 'Player efficiency', 'x': 0.5, 'y': 0.95},
-        font={'size': 16, 'family': 'sans-serif'},
-        height=750
+        **layout_options
     )
     return fig
 
@@ -227,10 +238,7 @@ def plot_links(market_df):
     # Create figure
     fig = go.Figure(data=sankey)
     fig.update_layout(
-        title_text='Member financial links',
-        title_x=0.5,
-        font_size=16,
-        height=750
+        title={'text': 'Member financial links', 'x': 0.5, 'y': 0.95},
+        **layout_options
     )
     return fig
-
