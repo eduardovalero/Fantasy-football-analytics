@@ -56,7 +56,17 @@ def get_players(session):
 
     # Create the players table
     if players_json['status'] == 200:
-        return pd.DataFrame.from_dict(players_json['data']['players'], orient='index')
+        # Create dataframe
+        df = pd.DataFrame.from_dict(players_json['data']['players'], orient='index')
+        df['played'] = df['playedHome'] + df['playedAway']
+        df.replace({'position': {1: 'keeper', 2: 'defender', 3: 'midfielder', 4: 'forward', 5: 'trainer'}}, inplace=True)
+        # Drop players who did not perform
+        df.drop(labels=df[df['points'] <= 0].index, inplace=True)
+        df.drop(labels=df[df['played'] <= 0].index, inplace=True)
+        # Estimate points/game and points/million
+        df['points_per_game'] = df['points'] / df['played']
+        df['points_per_mill'] = df['points'] / (df['price'] / 1e6)
+        return df
     else:
         raise Exception(f'Error getting list of players! Status code: {players_json["status"]}')
 
@@ -178,15 +188,6 @@ def plot_player_efficiency(players_df):
 
     # Process data
     df = players_df.copy()
-    df['played'] = df['playedHome'] + df['playedAway']
-    df.replace({'position': {1: 'keeper', 2: 'defender', 3: 'midfielder', 4: 'forward', 5: 'trainer'}}, inplace=True)
-    # Drop players who did not perform
-    df.drop(labels=df[df['points'] <= 0].index, inplace=True)
-    df.drop(labels=df[df['played'] <= 0].index, inplace=True)
-    # Estimate points/game and points/million
-    df['points_per_game'] = df['points'] / df['played']
-    df['points_per_mill'] = df['points'] / (df['price'] / 1e6)
-
     # Create figure
     fig = px.scatter(
         data_frame=df, x='points_per_game', y='points_per_mill',

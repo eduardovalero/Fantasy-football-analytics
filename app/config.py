@@ -11,42 +11,34 @@ url = {
 
 # ----------------------------------- Chart ---------------------------------
 chart_titles = {
-    'payments': 'How much do members pay to sign?',
     'links': 'How do members trade players?',
-    'purchases': 'History of purchases',
     'budget': 'Balance of the league members',
     'performance': 'Player efficiency',
+    # 'fitness': 'Recent player fitness',
 }
 
 chart_info = {
-
-    'payments': '''
-               For all the members, display a distribution of the amounts that
-               they have spent in player purchases during the season.
-               ''',
-
-    'links': '''
-              Show the flux of transactions between league members.
-              Hover a particular link to display the number of operations
-              between the two members connected by the link.
-              ''',
-
-    'purchases': '''
-               Display all the purchases performed by the members 
-               of the league. For a particular player, hover to show the market
-               value and the price paid by the member.
-               ''',
-
-    'performance': '''
-              Estimate player efficiency based on performance with respect
-              to market value. Hover the players to view the exact values
-              of this metric. 
-              ''',
-
-    'budget': '''
-              Select the initial budget in millions and the actual budget will be 
-              calculated based on the history of transactions..
-              '''
+    'links':
+        '''
+        Show the flux of transactions between league members.
+        Hover a particular link to display the number of operations
+        between the two members connected by the link.
+        ''',
+    'budget':
+        '''
+        Select the initial budget in millions and the actual budget will be 
+        calculated based on the history of transactions..
+        ''',
+    'performance':
+        '''
+        Estimate player efficiency based on performance with respect
+        to market value. Hover the players to view the exact values
+        of this metric. 
+        ''',
+    # 'fitness':
+    #     '''
+    #     Visualize the fitness of the players during the last weeks.
+    #     '''
 }
 
 # ------------------------------ Pages in the app -----------------------------
@@ -62,18 +54,18 @@ page_titles = {
 
 
 page_info = {
-
-    'market': '''
-            In this section, you can analyze the transactions made between
-            the league members. The data processed here are gathered from 
-            the start of the season to the present date.
-            ''',
-
-    'players': '''
-               This page provides multiple tools to analyze players in the
-               league. This includes ratios like points per game, points per 
-               million, etc.
-               '''
+    'market':
+        '''
+        In this page you can analyze the transactions made between
+        the league members. The data processed here are gathered from 
+        the start of the season to the present date.
+        ''',
+    'players':
+        '''
+        This page provides multiple tools to analyze players in the
+        league. This includes ratios like points per game, points per 
+        million, etc.
+        '''
 }
 
 
