@@ -156,6 +156,7 @@ core = dbc.Row(
                             children=[
                                 dash_table.DataTable(
                                     id='table-content',
+                                    sort_action='native',
                                     style_header={'fontWeight': 'bold', 'textAlign': 'center', 'fontFamily': font},
                                     style_data={'textAlign': 'center', 'fontFamily': font})
                             ]
