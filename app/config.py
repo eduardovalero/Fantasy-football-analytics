@@ -14,7 +14,7 @@ chart_titles = {
     'links': 'How do members trade players?',
     'budget': 'Balance of the league members',
     'performance': 'Player efficiency',
-    # 'fitness': 'Recent player fitness',
+    'fitness': 'Recent player fitness',
 }
 
 chart_info = {
@@ -35,10 +35,10 @@ chart_info = {
         to market value. Hover the players to view the exact values
         of this metric. 
         ''',
-    # 'fitness':
-    #     '''
-    #     Visualize the fitness of the players during the last weeks.
-    #     '''
+    'fitness':
+        '''
+        Visualize the fitness of the players during the last weeks.
+        '''
 }
 
 # ------------------------------ Pages in the app -----------------------------

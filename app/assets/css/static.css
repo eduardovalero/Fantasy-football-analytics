@@ -2,30 +2,10 @@
   --sidebar-width: 30%;
 }
 
+
 body{
   overflow-x:hidden;
-}
-
-#navbar > *{
-    display: flex;
-    align-items: center;
-    justify-content:center;
-    margin: 0.5rem;
-}
-
-#sidebar, #chart, #login-info{
-    height: 100%;
-    padding: 2.5rem;
-}
-
-#sidebar, #login-info{
-    background-color: #E9ECEF;
-}
-
-#market-accordion, #player-accordion, .accordion-button{
-    font-size: 1.15rem;
-    text-align: justify;
-    color: #2c8cff;
+  background-color: rgb(243, 243, 243);
 }
 
 .btn-accordion{
@@ -33,6 +13,30 @@ body{
     border-color: #2c8cff;
 }
 
-#market-btn, #players-btn{
+#market-accordion, #player-accordion{
+    font-size: 1.15rem;
+    text-align: justify;
+    color: #2c8cff;
+}
+
+#navbar > *{
+    align-items: center;
+    justify-content:center;
     margin: 0.5rem;
 }
+
+#sidebar, #core{
+    height: 100vh;
+    padding: 2.5rem;
+    display: block;
+}
+
+#sidebar{
+    background-color: #E9ECEF;
+}
+
+#table-container{
+    margin: auto;
+    margin-top: 1rem
+}
+

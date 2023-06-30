@@ -1,5 +1,6 @@
 import json
 import requests
+import colorlover
 import numpy as np
 import pandas as pd
 import seaborn as sns
@@ -10,8 +11,8 @@ from time import strftime, localtime
 
 
 # Global variables
-layout_options = dict(
-    font={'size': 16, 'family': 'sans-serif'},
+chart_options = dict(
+    font={'size': 16, 'family': 'sans-serif', 'color': 'black'},
     height=750,
     paper_bgcolor='rgb(243, 243, 243)',
     plot_bgcolor='rgb(243, 243, 243)',
@@ -60,6 +61,8 @@ def get_players(session):
         df = pd.DataFrame.from_dict(players_json['data']['players'], orient='index')
         df['played'] = df['playedHome'] + df['playedAway']
         df.replace({'position': {1: 'keeper', 2: 'defender', 3: 'midfielder', 4: 'forward', 5: 'trainer'}}, inplace=True)
+        # Calculate total points for recent fitness
+        df['fitness_total'] = df['fitness'].apply(lambda x: sum([score if isinstance(score, int) else 0 for score in x]))
         # Drop players who did not perform
         df.drop(labels=df[df['points'] <= 0].index, inplace=True)
         df.drop(labels=df[df['played'] <= 0].index, inplace=True)
@@ -142,14 +145,15 @@ def get_market(session, token, epoch, league, user):
         offset += limit
 
 
-def plot_budgets(initial_budget, market_df, rounds_df):
+def show_members_table(initial_budget, market_df, rounds_df):
     '''
-    Creates a barplot showing the economic balance of the league members.
+    Creates a table showing the economic balance and current poitns of the
+    league members.
 
     :param initial_budget: initial budget in (€) millions set by the league.
     :param market_df: market dataframe.
     :param rounds_df: rounds dataframe.
-    :return: barplot.
+    :return: data to show in the table as a dict.
     '''
 
     # Sells per member
@@ -163,20 +167,20 @@ def plot_budgets(initial_budget, market_df, rounds_df):
     # Bonuses per member
     bonus_df = rounds_df.groupby('member', as_index=False)['bonus'].sum()
     bonus_df.set_index('member', inplace=True)
+    # Points per member
+    points_df = rounds_df.groupby('member', as_index=False)['points'].sum()
+    points_df.set_index('member', inplace=True)
     # Estimate budget
     final_df = pd.DataFrame({
         'member': bonus_df.index.to_list(),
+        'points': points_df['points'],
         'balance': (sell_df['amount'] - buy_df['amount'] + initial_budget*1e6 + bonus_df['bonus'])/1e6
     })
+    # Get color scale for the balance column
+    styles = discrete_background_color_bins(df=final_df, columns=['balance'])
 
-    # Create figure
-    fig = px.bar(final_df, x='member', y='balance', color='balance')
-    # Update layout
-    fig.update_layout(
-        title={'text': 'Financial balance', 'x': 0.5, 'y': 0.95},
-        **layout_options
-    )
-    return fig
+    return final_df.to_dict('records'), styles
+
 
 def plot_player_efficiency(players_df):
     '''
@@ -201,7 +205,7 @@ def plot_player_efficiency(players_df):
     # Update layout
     fig.update_layout(
         title={'text': 'Player efficiency', 'x': 0.5, 'y': 0.95},
-        **layout_options
+        **chart_options
     )
     return fig
 
@@ -240,6 +244,71 @@ def plot_links(market_df):
     fig = go.Figure(data=sankey)
     fig.update_layout(
         title={'text': 'Member financial links', 'x': 0.5, 'y': 0.95},
-        **layout_options
+        **chart_options
     )
     return fig
+
+
+def plot_recent_fitness(players_df):
+    '''
+    Plots a scatter plot with the recent fitness of the players.
+
+    :param players_df: players dataframe.
+    :return: scatter plot with recent fitness.
+    '''
+
+    # Process data
+    df = players_df.copy()
+    # Create figure
+    fig = px.scatter(
+        data_frame=df, x='fitness_total', y='price',
+        size='points', color='position', hover_name='name',
+        labels={'position': 'Position', 'fitness': 'fitness_total'})
+    # Update layout
+    fig.update_layout(
+        title={'text': 'Player recent fitness', 'x': 0.5, 'y': 0.95},
+        **chart_options
+    )
+    return fig
+
+
+def discrete_background_color_bins(df, columns, n_bins=5 ):
+    '''
+    Colors each cell in the table according to their value. This
+    function was copied from the plotly official documentation:
+    https://dash.plotly.com/datatable/conditional-formatting
+    #highlighting-cells-by-value-with-a-colorscale-like-a-heatmap
+
+    :param df: dataframe containing the table info.
+    :param n_bins: number of bins to consider.
+    :param columns: columns to apply the coloring.
+    :return: style to apply to the dash table.
+    '''
+
+    bounds = [i * (1.0 / n_bins) for i in range(n_bins + 1)]
+    df_use = df[columns]
+    df_max = df_use.max().max()
+    df_min = df_use.min().min()
+    ranges = [((df_max - df_min) * i) + df_min for i in bounds]
+    styles = []
+
+    for i in range(1, len(bounds)):
+        min_bound = ranges[i - 1]
+        max_bound = ranges[i]
+        backgroundColor = colorlover.scales[str(n_bins)]['seq']['Greens'][i - 1]
+        color = 'white' if i > len(bounds) / 2. else 'inherit'
+
+        for column in df_use:
+            styles.append({
+                'if': {
+                    'filter_query': (
+                        '{{{column}}} >= {min_bound}' +
+                        (' && {{{column}}} < {max_bound}' if (i < len(bounds) - 1) else '')
+                    ).format(column=column, min_bound=min_bound, max_bound=max_bound),
+                    'column_id': column
+                },
+                'backgroundColor': backgroundColor,
+                'color': color
+            })
+
+    return styles

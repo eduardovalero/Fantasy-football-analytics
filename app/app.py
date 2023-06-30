@@ -7,7 +7,7 @@ from layout import layout
 import dash_bootstrap_components as dbc
 from time import strftime, strptime, localtime, mktime
 from config import page_info, page_titles, page_suptitles, epoch
-from dash import Dash, dcc, no_update, Input, Output, State, ctx
+from dash import Dash, dcc, no_update, Input, Output, State, ctx, dash_table
 import functions as api
 
 # ------------------------ Initialization ----------------------------
@@ -48,9 +48,9 @@ def login(button, email, password, user, league):
             # Return on success
             # *****************
             app_data ={
-                'market': pd.read_excel('./data/market.xlsx').to_json(),
-                'rounds': pd.read_excel('./data/rounds.xlsx').to_json(),
-                'players': pd.read_excel('./data/players.xlsx').to_json(),
+                'market': pd.read_excel('../data/market.xlsx').to_json(),
+                'rounds': pd.read_excel('../data/rounds.xlsx').to_json(),
+                'players': pd.read_excel('../data/players.xlsx').to_json(),
                 'email': 'edpvalero@gmail.com'
             }
             # *****************
@@ -84,32 +84,47 @@ def update_accordion(path):
 @app.callback(
     Output('chart-content', 'figure'),
     Output('chart-container', 'style'),
-    Input('btn-budget', 'n_clicks'),
     Input('btn-efficiency', 'n_clicks'),
     Input('btn-links', 'n_clicks'),
+    Input('btn-fitness', 'n_clicks'),
+    State('app-data', 'data'),
+    prevent_initial_call=True
+)
+def update_chart(btn_efficiency, btn_links, btn_fitness, app_data):
+    # Get data from session
+    trigger = ctx.triggered[0]['prop_id'].split('.')[0]
+    market_df = pd.DataFrame(json.loads(app_data['market']))
+    players_df = pd.DataFrame(json.loads(app_data['players']))
+    # Deliver desired info
+    if trigger == 'btn-efficiency':
+        return api.plot_player_efficiency(players_df), {'display': 'block'}
+    elif trigger == 'btn-links':
+        return api.plot_links(market_df), {'display': 'block'}
+    elif trigger == 'btn-fitness':
+        return api.plot_recent_fitness(players_df), {'display': 'block'}
+    else:
+        return no_update, no_update
+
+@app.callback(
+    Output('table-content', 'data'),
+    Output('table-content', 'style_data_conditional'),
+    Output('table-container', 'style'),
+    Input('btn-budget', 'n_clicks'),
     State('app-data', 'data'),
     State('budget-slider', 'value'),
     prevent_initial_call=True
 )
-def update_chart(btn_budget, btn_efficiency, btn_links, app_data, initial_budget):
+def update_table(button, app_data, initial_budget):
+    # Get data from session
     trigger = ctx.triggered[0]['prop_id'].split('.')[0]
     market_df = pd.DataFrame(json.loads(app_data['market']))
     rounds_df = pd.DataFrame(json.loads(app_data['rounds']))
-    players_df = pd.DataFrame(json.loads(app_data['players']))
     if trigger == 'btn-budget':
-        fig = api.plot_budgets(initial_budget, market_df, rounds_df)
-        show = {'display': 'block'}
-    elif trigger == 'btn-efficiency':
-        fig = api.plot_player_efficiency(players_df)
-        show = {'display': 'block'}
-    elif trigger == 'btn-links':
-        fig = api.plot_links(market_df)
-        show = {'display': 'block'}
+        # Deliver desired info
+        data, styles = api.show_members_table(initial_budget, market_df, rounds_df)
+        return data, styles, {'display': 'block'}
     else:
-        fig = no_update
-        show = no_update
-    return fig, show
-
+        return no_update, no_update, no_update
 
 # ------------------------ Run the app ----------------------------
 if __name__ == '__main__':

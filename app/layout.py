@@ -1,39 +1,52 @@
 import dash.dcc as dcc
 import dash.html as html
+from dash import dash_table
 import dash_bootstrap_components as dbc
 from config import (chart_info, chart_titles, page_info, page_titles,  page_suptitles)
 
+
+# ---------------------------- Global variables -----------------------------------
+spinner_dict = dict(
+    fullscreen=True,
+    color='primary',
+    spinner_style={'width': '10rem', 'height': '10rem'},
+    fullscreen_style={'opacity': '0.5', 'z-index': '999999'}
+)
+
+font = 'sans-serif'
 
 # -------------------------------- App header -------------------------------------
 header = dbc.Row(
     dbc.Navbar(
         id='navbar',
         children=[
-                html.Img(
-                    src='assets/favicon.svg',
-                    width='75vh',
-                    style={'margin-left': '3rem'}
-                ),
-                dbc.NavbarBrand(
-                    children='Biwenger analytics',
-                    style={'font-weight': '600'}
-                ),
-                dbc.Button(
-                    id='market-btn',
-                    n_clicks=0,
-                    children='Market',
-                    href='/',
-                    outline=True,
-                    color='light'
-                ),
-                dbc.Button(
-                    id='players-btn',
-                    n_clicks=0,
-                    children='Players',
-                    href='/players',
-                    outline=True,
-                    color='light'
-                )
+            html.Img(
+                src='assets/favicon.svg',
+                width='75vh',
+                style={'margin-left': '3rem'}
+            ),
+            dbc.NavbarBrand(
+                children='Football Fantasy analytics',
+                style={'font-weight': '600'}
+            ),
+            dbc.Button(
+                id='market-btn',
+                n_clicks=0,
+                children='Market',
+                href='/',
+                outline=True,
+                color='light',
+                style={'margin': '0.5rem'}
+            ),
+            dbc.Button(
+                id='players-btn',
+                n_clicks=0,
+                children='Players',
+                href='/players',
+                outline=True,
+                color='light',
+                style={'margin': '0.5rem'}
+            )
         ],
         color='#1C3146',
         dark=True,
@@ -43,8 +56,8 @@ header = dbc.Row(
 
 # --------------------------- App body  ---------------------------------
 core = dbc.Row(
-    id='core',
-    style={'height': '100vh', 'margin-right': '0rem'},
+    id='main-content',
+    style={'overflow': 'auto'},
     children=[
         dbc.Col(
             id='sidebar',
@@ -102,50 +115,54 @@ core = dbc.Row(
                                 dbc.Button('Display', className='btn-accordion', id='btn-efficiency', n_clicks=0)
                             ]
                         ),
-                        # dbc.AccordionItem(
-                        #     id='fitness-accordion',
-                        #     title=chart_titles['fitness'],
-                        #     children=[
-                        #         html.P(chart_info['fitness']),
-                        #         dbc.Button('Display', className='btn-accordion', id='btn-fitness', n_clicks=0)
-                        #     ]
-                        # )
+                        dbc.AccordionItem(
+                            id='fitness-accordion',
+                            title=chart_titles['fitness'],
+                            children=[
+                                html.P(chart_info['fitness']),
+                                dbc.Button('Display', className='btn-accordion', id='btn-fitness', n_clicks=0)
+                            ]
+                        )
                     ]
                 )
             ],
         ),
         dbc.Col(
-            id='chart',
+            id='core',
             width=6,
-            children=[dbc.Spinner(
-                children=[
-                    html.Div(
-                        children=[dcc.Graph(id='chart-content', figure={})],
-                        style={'display': 'none'},
-                        id='chart-container'
-                    )],
-                fullscreen=True,
-                color='primary',
-                spinner_style={'width': '10rem', 'height': '10rem'},
-                fullscreen_style={'opacity': '0.5'}
-            )]
+            children=[
+                dbc.Spinner(
+                    children=[
+                        html.Div(
+                            children=[dcc.Graph(id='chart-content')],
+                            style={'display': 'none'},
+                            id='chart-container'
+                        )],
+                    **spinner_dict
+                ),
+            ]
         ),
         dbc.Col(
-            id='twitter-feed',
+            id='scoreboard',
             width=3,
             children=[
-                html.Div(
-                    html.Iframe(
-                        id='twitter-widget',
-                        srcDoc='''
-                            <a class="twitter-timeline" data-theme="light" href="https://twitter.com/biwenger?ref_src=twsrc%5Etfw"></a> 
-                            <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-                        ''',
-                        style={'width': '100%', 'height': '100%', 'margin': '0rem', 'overflow': 'hidden'},
-                    ),
-                    style={'height': '100%', 'margin': '1rem'}
-                )
+                dbc.Spinner(
+                    **spinner_dict,
+                    children=[
+                        dbc.Toast(
+                            id='table-container',
+                            header = 'League scoreboard',
+                            style={'display': 'none', 'margin': '1rem'},
+                            children=[
+                                dash_table.DataTable(
+                                    id='table-content',
+                                    style_header={'fontWeight': 'bold', 'textAlign': 'center', 'fontFamily': font},
+                                    style_data={'textAlign': 'center', 'fontFamily': font})
+                            ]
+                        )
+                    ],
 
+                )
             ]
         )
     ]
@@ -163,7 +180,7 @@ modal = dbc.Modal(
             dbc.ModalHeader(
                 dbc.ModalTitle(
                     id='modal-title',
-                    children=["Sign in to Biwenger"]
+                    children=["Sign in to your Football Fantasy app"]
                 ),
                 close_button=False
             ),
@@ -172,7 +189,7 @@ modal = dbc.Modal(
                 children=[
                     html.P(
                         id='modal-text',
-                        children='Input your details and then click Sign in to access the app and start analyzing you league.',
+                        children='Input your details to start analyzing you league.',
                         style={'color': 'primary', 'margin-bottom': '2rem'}
                     ),
                     dbc.InputGroup([
@@ -209,20 +226,14 @@ modal = dbc.Modal(
     )
 
 # ------------------------------- Layout --------------------------------------
-layout = dbc.Container(
+layout = html.Div(
+    id='layout',
     children=[
         dcc.Location(id='url'),
         modal,
         header,
         core,
-        dbc.Spinner(
-            children=[dcc.Store(id='app-data')],
-            fullscreen=True,
-            color='primary',
-            spinner_style={'width': '10rem', 'height': '10rem'},
-            fullscreen_style={'opacity': '0.5', 'position': 'fixed', 'z-index': '999999'}
-        )
+        dbc.Spinner(children=[dcc.Store(id='app-data')], **spinner_dict)
     ],
-    fluid=True,
-    style={'padding': '0rem', 'margin': '0rem'}
+    style={'padding': '0rem', 'margin': '0rem', 'overflow': 'auto', 'height': '100vh', 'overflow-x': 'hidden'}
 )
