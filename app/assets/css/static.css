@@ -2,7 +2,6 @@
   --sidebar-width: 30%;
 }
 
-
 body{
   overflow-x:hidden;
   background-color: rgb(243, 243, 243);
@@ -11,6 +10,24 @@ body{
 .btn-accordion{
     background-color: #2c8cff;
     border-color: #2c8cff;
+}
+
+input[type=radio]{
+    margin: 0.5rem;
+}
+
+.filter-p{
+    margin: auto;
+    font-weight: bold;
+    padding-top: 1rem;
+}
+
+.rc-slider-track {
+  background-color: #3B71CA;
+}
+
+.rc-slider-handle, .rc-slider-dot-active{
+    border: solid 2px #3B71CA;
 }
 
 #market-accordion, #player-accordion{

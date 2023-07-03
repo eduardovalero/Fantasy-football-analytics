@@ -9,7 +9,7 @@ from config import (chart_info, chart_titles, page_info, page_titles,  page_supt
 spinner_dict = dict(
     fullscreen=True,
     color='primary',
-    spinner_style={'width': '10rem', 'height': '10rem'},
+    spinner_style={'width': '5rem', 'height': '5rem'},
     fullscreen_style={'opacity': '0.5', 'z-index': '999999'}
 )
 
@@ -122,6 +122,14 @@ core = dbc.Row(
                                 html.P(chart_info['fitness']),
                                 dbc.Button('Display', className='btn-accordion', id='btn-fitness', n_clicks=0)
                             ]
+                        ),
+                        dbc.AccordionItem(
+                            id='lastseason-accordion',
+                            title=chart_titles['lastseason'],
+                            children=[
+                                html.P(chart_info['lastseason']),
+                                dbc.Button('Display', className='btn-accordion', id='btn-lastseason', n_clicks=0)
+                            ]
                         )
                     ]
                 )
@@ -140,6 +148,28 @@ core = dbc.Row(
                         )],
                     **spinner_dict
                 ),
+                dbc.Spinner(
+                    **spinner_dict,
+                    children=[
+                        html.Div(
+                            style = {'display': 'none', 'padding-bottom': '2rem'},
+                            id = 'table-container',
+                            children=[
+                                html.H5('Top performances from last season', style={'text-align': 'center', 'margin': '1rem'}),
+                                dash_table.DataTable(
+                                    id='table-content',
+                                    sort_action='native',
+                                    style_header={'fontWeight': 'bold', 'textAlign': 'center', 'fontFamily': font},
+                                    style_data={'textAlign': 'center', 'fontFamily': font}
+                                ),
+                                html.P('Position', className='filter-p'),
+                                dcc.RadioItems(['keeper', 'defender', 'midfielder', 'forward'], 'forward', id='lastseason-radio', inline=True),
+                                html.P('Price range (millions)', className='filter-p'),
+                                dcc.RangeSlider(id='lastseason-slider', min=0, max=30, step=1, value=[10, 20])
+                            ]
+                        )
+                    ],
+                )
             ]
         ),
         dbc.Col(
@@ -150,19 +180,19 @@ core = dbc.Row(
                     **spinner_dict,
                     children=[
                         dbc.Toast(
-                            id='table-container',
+                            id='scoreboard-container',
                             header = 'League scoreboard',
                             style={'display': 'none', 'margin': '1rem'},
+                            header_style={'color': 'black', 'align-text': 'center'},
                             children=[
                                 dash_table.DataTable(
-                                    id='table-content',
+                                    id='scoreboard-content',
                                     sort_action='native',
                                     style_header={'fontWeight': 'bold', 'textAlign': 'center', 'fontFamily': font},
                                     style_data={'textAlign': 'center', 'fontFamily': font})
                             ]
                         )
                     ],
-
                 )
             ]
         )

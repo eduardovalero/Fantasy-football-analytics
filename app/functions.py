@@ -145,7 +145,7 @@ def get_market(session, token, epoch, league, user):
         offset += limit
 
 
-def show_members_table(initial_budget, market_df, rounds_df):
+def show_scoreboard(initial_budget, market_df, rounds_df):
     '''
     Creates a table showing the economic balance and current poitns of the
     league members.
@@ -272,7 +272,22 @@ def plot_recent_fitness(players_df):
     return fig
 
 
-def discrete_background_color_bins(df, columns, n_bins=5 ):
+def get_tops_from_last_season(players_df, position='forward', bounds=[0, 100], N=10):
+    # Columns to keep
+    cols = ['name', 'position', 'status', 'price', 'pointsLastSeason']
+    df = players_df[cols].copy()
+    # Segment data
+    df_pos = df.loc[(df['position'] == position) & (bounds[0]*1e6 <= df['price']) & (df['price'] <= bounds[1]*1e6)]
+    df_pos.sort_values(by=['pointsLastSeason'], ascending=False, inplace=True)
+    df_pos.reset_index(inplace=True, drop=True)
+    df_pos_top = df_pos.loc[0:N-1]
+    # Get table styles
+    styles = discrete_background_color_bins(df=df_pos_top, columns=['pointsLastSeason'])
+
+    return df_pos_top.to_dict('records'), styles
+
+
+def discrete_background_color_bins(df, columns, n_bins=7):
     '''
     Colors each cell in the table according to their value. This
     function was copied from the plotly official documentation:
@@ -286,7 +301,14 @@ def discrete_background_color_bins(df, columns, n_bins=5 ):
     '''
 
     bounds = [i * (1.0 / n_bins) for i in range(n_bins + 1)]
-    df_use = df[columns]
+    if columns == 'all':
+        if 'id' in df:
+            df_use = df.select_dtypes('number').drop(['id'], axis=1)
+        else:
+            df_use = df.select_dtypes('number')
+    else:
+        df_use = df[columns]
+
     df_max = df_use.max().max()
     df_min = df_use.min().min()
     ranges = [((df_max - df_min) * i) + df_min for i in bounds]

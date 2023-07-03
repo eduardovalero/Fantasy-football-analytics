@@ -105,31 +105,62 @@ def update_chart(btn_efficiency, btn_links, btn_fitness, app_data):
     else:
         return no_update, no_update
 
+# ------------------------ Table callback ----------------------------
 @app.callback(
     Output('table-content', 'data'),
     Output('table-content', 'style_data_conditional'),
     Output('table-container', 'style'),
+    Input('btn-lastseason', 'n_clicks'),
+    Input('lastseason-radio', 'value'),
+    Input('lastseason-slider', 'value'),
+    State('app-data', 'data'),
+    prevent_initial_call=True
+)
+def update_table(btn_lastseason, radio, slider, app_data):
+    # Get data from session
+    trigger = ctx.triggered[0]['prop_id'].split('.')[0]
+    players_df = pd.DataFrame(json.loads(app_data['players']))
+    # Deliver desired info
+    if trigger == 'btn-lastseason':
+        data, styles = api.get_tops_from_last_season(players_df)
+        return data, styles, {'display': 'block', 'margin': '1rem'}
+    elif trigger in ['lastseason-radio', 'lastseason-slider']:
+        # Deliver desired info
+        position = radio
+        bounds = slider
+        data, styles = api.get_tops_from_last_season(players_df, position, bounds)
+        return data, styles, {'display': 'block', 'margin': '1rem'}
+    else:
+        no_update, no_update, no_update
+
+
+# ------------------------ Scoreboard callback ----------------------------
+@app.callback(
+    Output('scoreboard-content', 'data'),
+    Output('scoreboard-content', 'style_data_conditional'),
+    Output('scoreboard-container', 'style'),
     Input('btn-budget', 'n_clicks'),
     State('app-data', 'data'),
     State('budget-slider', 'value'),
     prevent_initial_call=True
 )
-def update_table(button, app_data, initial_budget):
+def update_scoreboard(button, app_data, initial_budget):
     # Get data from session
     trigger = ctx.triggered[0]['prop_id'].split('.')[0]
     market_df = pd.DataFrame(json.loads(app_data['market']))
     rounds_df = pd.DataFrame(json.loads(app_data['rounds']))
     if trigger == 'btn-budget':
         # Deliver desired info
-        data, styles = api.show_members_table(initial_budget, market_df, rounds_df)
-        return data, styles, {'display': 'block'}
+        data, styles = api.show_scoreboard(initial_budget, market_df, rounds_df)
+        return data, styles, {'display': 'block', 'margin': '1rem'}
     else:
         return no_update, no_update, no_update
+
 
 # ------------------------ Run the app ----------------------------
 if __name__ == '__main__':
     app.run_server(
-        debug=True,
+        debug=False,
         dev_tools_ui=False,
         dev_tools_props_check=False
     )

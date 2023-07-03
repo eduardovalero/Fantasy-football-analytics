@@ -15,6 +15,7 @@ chart_titles = {
     'budget': 'Balance of the league members',
     'performance': 'Player efficiency',
     'fitness': 'Recent player fitness',
+    'lastseason': 'Last season top performances',
 }
 
 chart_info = {
@@ -38,6 +39,11 @@ chart_info = {
     'fitness':
         '''
         Visualize the fitness of the players during the last weeks.
+        ''',
+    'lastseason':
+        '''
+        Inspect the top players from last season in order to select
+        potential target players for your current line up.
         '''
 }
 
