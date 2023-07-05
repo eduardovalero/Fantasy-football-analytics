@@ -7,57 +7,68 @@ from config import (chart_info, chart_titles, page_info, page_titles,  page_supt
 
 # ---------------------------- Global variables -----------------------------------
 spinner_dict = dict(
-    fullscreen=True,
-    color='primary',
-    spinner_style={'width': '5rem', 'height': '5rem'},
-    fullscreen_style={'opacity': '0.5', 'z-index': '999999'}
+    fullscreen = True,
+    color = 'primary',
+    spinner_style = {'width': '5rem', 'height': '5rem'},
+    fullscreen_style = {'opacity': '0.5', 'z-index': '999999'}
 )
 
-font = 'sans-serif'
+slider_dict = dict(
+    marks = None,
+    tooltip = {"placement": "topRight", "always_visible": True}
+)
 
-# -------------------------------- App header -------------------------------------
+style_data = dict(
+    textAlign = 'center',
+    fontFamily = 'system-ui',
+    backgroundColor = '#f3f3f3'
+)
+
+style_header = dict(
+    fontWeight = 'bold',
+    textAlign = 'center',
+    fontFamily = 'system-ui',
+    backgroundColor = '#E9ECEF'
+)
+
+positions = ['keeper', 'defender', 'midfielder', 'forward']
+
+
+# -------------------------- App header ---------------------------------
 header = dbc.Row(
     dbc.Navbar(
         id='navbar',
+        color='#34353A',
+        dark=True,
         children=[
             html.Img(
-                src='assets/favicon.svg',
-                width='75vh',
-                style={'margin-left': '3rem'}
+                id='navbar-img',
+                src='assets/favicon.svg'
             ),
             dbc.NavbarBrand(
-                children='Football Fantasy analytics',
-                style={'font-weight': '600'}
+                id='navbar-brand',
+                children='Football Fantasy analytics'
             ),
             dbc.Button(
                 id='market-btn',
                 n_clicks=0,
-                children='Market',
                 href='/',
-                outline=True,
-                color='light',
-                style={'margin': '0.5rem'}
+                children='Market'
             ),
             dbc.Button(
                 id='players-btn',
                 n_clicks=0,
-                children='Players',
                 href='/players',
-                outline=True,
-                color='light',
-                style={'margin': '0.5rem'}
+                children='Players'
             )
-        ],
-        color='#1C3146',
-        dark=True,
-        style={'margin': '0rem !important'}
-    ),
+        ]
+    )
 )
+
 
 # --------------------------- App body  ---------------------------------
 core = dbc.Row(
     id='main-content',
-    style={'overflow': 'auto'},
     children=[
         dbc.Col(
             id='sidebar',
@@ -65,21 +76,20 @@ core = dbc.Row(
             children=[
                 html.H5(
                     id='sidebar-suptitle',
-                    children=page_suptitles['market'],
-                    style={'color': '#2c8cff'}
+                    children=page_suptitles['market']
                 ),
                 html.H3(
                     id='sidebar-title',
-                    children=page_titles['market'],
                     className='display-4',
-                    style={'font-size': '3rem', 'font-weight': '500'}),
+                    children=page_titles['market']
+                ),
                 html.Hr(
                 ),
                 html.P(
                     id='sidebar-info',
-                    children=page_info['market'],
                     className='lead',
-                    style={'font-size': '1.25rem', 'font-weight': '400', 'text-align': 'justify'}),
+                    children=page_info['market']
+                ),
                 dbc.Accordion(
                     id='market-accordion',
                     start_collapsed=True,
@@ -89,8 +99,8 @@ core = dbc.Row(
                             title=chart_titles['budget'],
                             children=[
                                 html.P(chart_info['budget']),
-                                dcc.Slider(0, 100, 1, id='budget-slider', value=20, marks=None, tooltip={"placement": "bottom", "always_visible": True}),
-                                dbc.Button('Calculate', className='btn-accordion mt-2', id='btn-budget', n_clicks=0),
+                                dcc.Slider(0, 100, 1, id='budget-slider', value=20, **slider_dict),
+                                dbc.Button('Calculate', id='btn-budget', n_clicks=0),
                             ]
                         ),
                         dbc.AccordionItem(
@@ -98,7 +108,7 @@ core = dbc.Row(
                             title=chart_titles['links'],
                             children=[
                                 html.P(chart_info['links']),
-                                dbc.Button('Display', className='btn-accordion mt-2', id='btn-links', n_clicks=0),
+                                dbc.Button('Display', id='btn-links', n_clicks=0),
                             ]
                         )
                     ]
@@ -112,7 +122,7 @@ core = dbc.Row(
                             title=chart_titles['performance'],
                             children=[
                                 html.P(chart_info['performance']),
-                                dbc.Button('Display', className='btn-accordion', id='btn-efficiency', n_clicks=0)
+                                dbc.Button('Display', id='btn-efficiency', n_clicks=0)
                             ]
                         ),
                         dbc.AccordionItem(
@@ -120,7 +130,7 @@ core = dbc.Row(
                             title=chart_titles['fitness'],
                             children=[
                                 html.P(chart_info['fitness']),
-                                dbc.Button('Display', className='btn-accordion', id='btn-fitness', n_clicks=0)
+                                dbc.Button('Display', id='btn-fitness', n_clicks=0)
                             ]
                         ),
                         dbc.AccordionItem(
@@ -128,7 +138,7 @@ core = dbc.Row(
                             title=chart_titles['lastseason'],
                             children=[
                                 html.P(chart_info['lastseason']),
-                                dbc.Button('Display', className='btn-accordion', id='btn-lastseason', n_clicks=0)
+                                dbc.Button('Display', id='btn-lastseason', n_clicks=0)
                             ]
                         )
                     ]
@@ -140,32 +150,49 @@ core = dbc.Row(
             width=6,
             children=[
                 dbc.Spinner(
+                    **spinner_dict,
                     children=[
                         html.Div(
-                            children=[dcc.Graph(id='chart-content')],
-                            style={'display': 'none'},
-                            id='chart-container'
-                        )],
-                    **spinner_dict
+                            id='chart-container',
+                            children=[dcc.Graph(id='chart-content')]
+                        )
+                    ],
                 ),
                 dbc.Spinner(
                     **spinner_dict,
                     children=[
                         html.Div(
-                            style = {'display': 'none', 'padding-bottom': '2rem'},
                             id = 'table-container',
                             children=[
-                                html.H5('Top performances from last season', style={'text-align': 'center', 'margin': '1rem'}),
+                                html.H5('Top performances from last season'),
                                 dash_table.DataTable(
                                     id='table-content',
                                     sort_action='native',
-                                    style_header={'fontWeight': 'bold', 'textAlign': 'center', 'fontFamily': font},
-                                    style_data={'textAlign': 'center', 'fontFamily': font}
+                                    style_header=style_header,
+                                    style_data=style_data
                                 ),
-                                html.P('Position', className='filter-p'),
-                                dcc.RadioItems(['keeper', 'defender', 'midfielder', 'forward'], 'forward', id='lastseason-radio', inline=True),
-                                html.P('Price range (millions)', className='filter-p'),
-                                dcc.RangeSlider(id='lastseason-slider', min=0, max=30, step=1, value=[10, 20])
+                                html.Div(
+                                    id='filter-area',
+                                    children=[
+                                        dbc.Col(
+                                            id='filter-position',
+                                            width=6,
+                                            children=[
+                                                html.P('Position', className='filter-title'),
+                                                dcc.RadioItems(positions, 'forward', id='lastseason-radio', inline=True)
+                                            ]
+                                        ),
+                                        dbc.Col(
+                                            id='filter-price',
+                                            width=6,
+                                            children=[
+                                                html.P('Price range (millions)', className='filter-title'),
+                                                dcc.RangeSlider(id='lastseason-slider', min=0, max=30, value=[5, 25], **slider_dict)
+                                            ]
+                                        )
+                                    ]
+                                )
+
                             ]
                         )
                     ],
@@ -179,17 +206,16 @@ core = dbc.Row(
                 dbc.Spinner(
                     **spinner_dict,
                     children=[
-                        dbc.Toast(
+                        html.Div(
                             id='scoreboard-container',
-                            header = 'League scoreboard',
-                            style={'display': 'none', 'margin': '1rem'},
-                            header_style={'color': 'black', 'align-text': 'center'},
                             children=[
+                                html.H5('League scoreboard'),
                                 dash_table.DataTable(
                                     id='scoreboard-content',
                                     sort_action='native',
-                                    style_header={'fontWeight': 'bold', 'textAlign': 'center', 'fontFamily': font},
-                                    style_data={'textAlign': 'center', 'fontFamily': font})
+                                    style_header=style_header,
+                                    style_data=style_data
+                                )
                             ]
                         )
                     ],
@@ -220,39 +246,48 @@ modal = dbc.Modal(
                 children=[
                     html.P(
                         id='modal-text',
-                        children='Input your details to start analyzing you league.',
-                        style={'color': 'primary', 'margin-bottom': '2rem'}
+                        children='Input your details to start analyzing you league.'
                     ),
-                    dbc.InputGroup([
+                    dbc.InputGroup(
+                        className='mb-3',
+                        children=[
                             dbc.InputGroupText('Email'),
-                            dbc.Input(id='modal-email', placeholder='john.doe@gmail.com')],
-                        className='mb-3',
+                            dbc.Input(id='modal-email', placeholder='john.doe@gmail.com')
+                        ]
                     ),
-                    dbc.InputGroup([
+                    dbc.InputGroup(
+                        className='mb-3',
+                        children=[
                             dbc.InputGroupText('Password'),
-                            dbc.Input(id='modal-password', type='password', placeholder='u!4FyW*xj27$')],
-                        className='mb-3',
+                            dbc.Input(id='modal-password', type='password', placeholder='u!4FyW*xj27$')
+                        ]
                     ),
-                    dbc.InputGroup([
+                    dbc.InputGroup(
+                        className='mb-3',
+                        children=[
                             dbc.InputGroupText('User ID'),
-                            dbc.Input(id='modal-user', placeholder='7820380')],
-                        className='mb-3',
+                            dbc.Input(id='modal-user', placeholder='7820380')
+                        ]
                     ),
-                    dbc.InputGroup([
-                            dbc.InputGroupText('League ID'),
-                            dbc.Input(id='modal-league', placeholder='512626')],
+                    dbc.InputGroup(
                         className='mb-3',
+                        children=[
+                            dbc.InputGroupText('League ID'),
+                            dbc.Input(id='modal-league', placeholder='512626')
+                        ]
                     )
                 ],
             ),
-            dbc.ModalFooter([
-                dbc.Button(
-                    id="modal-btn",
-                    children=["Sign in"],
-                    className="ms-auto",
-                    n_clicks=0,
-                )
-            ]),
+            dbc.ModalFooter(
+                children=[
+                    dbc.Button(
+                        id="modal-btn",
+                        className="ms-auto",
+                        n_clicks=0,
+                        children=["Sign in"]
+                    )
+                ]
+            ),
         ],
     )
 
@@ -265,6 +300,5 @@ layout = html.Div(
         header,
         core,
         dbc.Spinner(children=[dcc.Store(id='app-data')], **spinner_dict)
-    ],
-    style={'padding': '0rem', 'margin': '0rem', 'overflow': 'auto', 'height': '100vh', 'overflow-x': 'hidden'}
+    ]
 )

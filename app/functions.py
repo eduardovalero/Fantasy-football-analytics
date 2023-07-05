@@ -278,8 +278,8 @@ def get_tops_from_last_season(players_df, position='forward', bounds=[0, 100], N
     df = players_df[cols].copy()
     # Segment data
     df_pos = df.loc[(df['position'] == position) & (bounds[0]*1e6 <= df['price']) & (df['price'] <= bounds[1]*1e6)]
-    df_pos.sort_values(by=['pointsLastSeason'], ascending=False, inplace=True)
-    df_pos.reset_index(inplace=True, drop=True)
+    df_pos = df_pos.sort_values(by=['pointsLastSeason'], ascending=False)
+    df_pos.reset_index(drop=True, inplace=True)
     df_pos_top = df_pos.loc[0:N-1]
     # Get table styles
     styles = discrete_background_color_bins(df=df_pos_top, columns=['pointsLastSeason'])
