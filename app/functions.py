@@ -8,16 +8,17 @@ import plotly.express as px
 import plotly.graph_objs as go
 from config import url
 from time import strftime, localtime
+from plotly.express.colors import sample_colorscale
 
 
 # Global variables
 chart_options = dict(
-    font={'size': 16, 'family': 'sans-serif', 'color': 'black'},
+    font={'size': 16, 'family': 'system-ui', 'color': '#E3E2DF'},
     height=750,
-    paper_bgcolor='rgb(243, 243, 243)',
-    plot_bgcolor='rgb(243, 243, 243)',
-    xaxis={'gridwidth': 2},
-    yaxis={'gridwidth': 2}
+    paper_bgcolor='#4E4E50',
+    plot_bgcolor=' #4E4E50',
+    xaxis={'gridwidth': 1, 'gridcolor': '#E3E2DF'},
+    yaxis={'gridwidth': 1, 'gridcolor': '#E3E2DF'}
 )
 
 
@@ -300,26 +301,26 @@ def discrete_background_color_bins(df, columns, n_bins=7):
     :return: style to apply to the dash table.
     '''
 
-    bounds = [i * (1.0 / n_bins) for i in range(n_bins + 1)]
-    if columns == 'all':
-        if 'id' in df:
-            df_use = df.select_dtypes('number').drop(['id'], axis=1)
-        else:
-            df_use = df.select_dtypes('number')
-    else:
-        df_use = df[columns]
+    # Segment data
+    df_use = df[columns]
 
+    # Select colors from scale
+    sample = np.linspace(0.45, 0.85, len(df) + 1)
+    colors = list(reversed(sample_colorscale(colorscale='Turbo', samplepoints=list(sample))))
+    bounds = np.linspace(0, 1, len(df) + 1)
+
+    # Define ranges
     df_max = df_use.max().max()
     df_min = df_use.min().min()
     ranges = [((df_max - df_min) * i) + df_min for i in bounds]
-    styles = []
+    styles = list()
 
+    # Asign colors to cell
     for i in range(1, len(bounds)):
         min_bound = ranges[i - 1]
         max_bound = ranges[i]
-        backgroundColor = colorlover.scales[str(n_bins)]['seq']['Greens'][i - 1]
-        color = 'white' if i > len(bounds) / 2. else 'inherit'
-
+        backgroundColor = colors[i - 1]
+        color = 'inherit' if i > len(bounds) / 2. else 'white'
         for column in df_use:
             styles.append({
                 'if': {

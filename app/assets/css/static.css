@@ -1,9 +1,13 @@
 /* -------------------------- Global variables -------------------------- */
 
 :root {
-  --button-color: #2c8cff;
-  --sidebar-color: #E9ECEF;
-  --body-color: #f3f3f3;
+  --font: system-ui;
+  --color_body: #4E4E50;
+  --color_navbar: #1A1A1E;
+  --color_title: #C3073F;
+  --color_subtitle: #E3E2DF;
+  --color_text: #E3E2DF;
+  --color_button: #6F2232;
 }
 
 
@@ -11,7 +15,7 @@
 
 body{
   overflow-x:hidden;
-  background-color: var(--body-color);
+  background-color: var(--color_body);
 }
 
 #layout{
@@ -22,60 +26,108 @@ body{
     overflow-x: hidden;
 }
 
+#main-content{
+    overflow: auto
+}
+
+
+/* ---------------------------- Navbar ---------------------------- */
+
 #navbar{
-    margin: 0rem !important
+    margin: 0rem !important;
+    background-color: var(--color_navbar) !important;
+    border-bottom: solid 1px var(--color_button);
 }
 
 #navbar-img{
     margin-left: 3rem !important;
-    width: 4rem;
+    width: 5rem;
 }
 
 #navbar-brand{
-    font-weight: bold;
-}
-
-#main-content{
-    overflow: auto
+    font-family: var(--font);
+    color: var(--color_subtitle);
+    margin-left: 1rem;
 }
 
 #navbar > *{
     align-items: center;
     justify-content:center;
-    margin: 0.5rem;
 }
 
-#sidebar, #core{
+
+/* ---------------------------- Sidebar ---------------------------- */
+
+#sidebar{
     height: auto;
     padding: 2.5rem;
     display: block;
 }
 
 #sidebar{
-    background-color: var(--sidebar-color);
+    background-color: var(--color_navbar);
+}
+
+#sidebar-title{
+    color: var(--color_title);
 }
 
 #sidebar-suptitle{
-    color: var(--button-color)
+    color: var(--color_subtitle)
 }
 
-#scoreboard-container{
-    display: none;
-    margin: 1rem;
+#sidebar p{
+    color: var(--color_text);
 }
 
 
-/* ---------------------------- Chart and table ---------------------------- */
+/* ----------------------------- Accordion ------------------------------ */
+
+.accordion-body, .accordion-button{
+  background-color: var(--color_navbar);
+  color: var(--color_title);
+}
+
+.accordion-item {
+  --bs-accordion-border-color: var(--color_body);
+}
+
+.accordion-body{
+    font-size: 1rem;
+    text-align: justify;
+    color: black;
+}
+
+.btn-accordion{
+    background-color: var(--color_title);
+    border-color: var(--color_title);
+}
+
+
+/* -------------------------------- Chart ------------------------------- */
+
+#core{
+    height: auto;
+    padding: 2.5rem;
+    display: block;
+}
 
 #chart-container{
     display: none;
 }
+
+
+/* -------------------------------- Table ------------------------------- */
 
 #table-container{
     margin: auto;
     margin-top: 1rem;
     padding-bottom: 2rem;
     display: none;
+}
+
+#table-title, .filter-title, #lastseason-radio{
+    color: var(--color_subtitle);
 }
 
 #filter-area{
@@ -88,6 +140,7 @@ body{
     font-weight: bold;
     text-align: center;
     padding-bottom: 0.5rem;
+
 }
 
 #filter-position{
@@ -99,29 +152,41 @@ body{
 }
 
 
+/* ---------------------------- Scoreboard  ---------------------------- */
+
+#scoreboard-container{
+    display: none;
+    margin: 1rem;
+}
+
+#scoreboard-title{
+    color: var(--color_subtitle);
+}
+
+/* --------------------------------- Modal -------------------------------- */
+
+#modal-title, #modal-btn{
+    margin: auto;
+}
+
+#modal-text{
+    text-align: center;
+}
+
 /* ---------------------------- Other elements ---------------------------- */
 
-.button{
+.btn{
     margin: 0.5rem;
-}
-
-.accordion-body{
-    font-size: 1rem;
-    text-align: justify;
-    color: black;
-}
-
-.btn-accordion{
-    background-color: var(--button-color);
-    border-color: var(--button-color);
+    background-color: var(--color_button) !important;
+    border-color: var(--color_button) !important;
 }
 
 .rc-slider-track {
-  background-color: var(--button-color);
+  background-color: var(--color_title);
 }
 
 .rc-slider-handle, .rc-slider-dot-active{
-    border: solid 2px var(--button-color);
+    border: solid 2px var(--color_title);
 }
 
 h5{

@@ -6,6 +6,17 @@ from config import (chart_info, chart_titles, page_info, page_titles,  page_supt
 
 
 # ---------------------------- Global variables -----------------------------------
+
+css = dict(
+    font = 'system-ui',
+    color_body = '#4E4E50',
+    color_navbar = '#1A1A1E',
+    color_title = '#C3073F',
+    color_subtitle = '#E3E2DF',
+    color_text = '#E3E2DF',
+    color_button = '#6F2232'
+)
+
 spinner_dict = dict(
     fullscreen = True,
     color = 'primary',
@@ -20,15 +31,16 @@ slider_dict = dict(
 
 style_data = dict(
     textAlign = 'center',
-    fontFamily = 'system-ui',
-    backgroundColor = '#f3f3f3'
+    fontFamily = css['font'],
+    backgroundColor = css['color_body'],
+    color = css['color_text']
 )
 
 style_header = dict(
-    fontWeight = 'bold',
     textAlign = 'center',
-    fontFamily = 'system-ui',
-    backgroundColor = '#E9ECEF'
+    fontFamily = css['font'],
+    backgroundColor = css['color_navbar'],
+    color = css['color_title']
 )
 
 positions = ['keeper', 'defender', 'midfielder', 'forward']
@@ -38,7 +50,6 @@ positions = ['keeper', 'defender', 'midfielder', 'forward']
 header = dbc.Row(
     dbc.Navbar(
         id='navbar',
-        color='#34353A',
         dark=True,
         children=[
             html.Img(
@@ -66,7 +77,7 @@ header = dbc.Row(
 )
 
 
-# --------------------------- App body  ---------------------------------
+# --------------------------- App main content  ---------------------------------
 core = dbc.Row(
     id='main-content',
     children=[
@@ -164,7 +175,10 @@ core = dbc.Row(
                         html.Div(
                             id = 'table-container',
                             children=[
-                                html.H5('Top performances from last season'),
+                                html.H5(
+                                    id='table-title',
+                                    children='Top performances from last season'
+                                ),
                                 dash_table.DataTable(
                                     id='table-content',
                                     sort_action='native',
@@ -209,7 +223,7 @@ core = dbc.Row(
                         html.Div(
                             id='scoreboard-container',
                             children=[
-                                html.H5('League scoreboard'),
+                                html.H5(id='scoreboard-title', children='League scoreboard'),
                                 dash_table.DataTable(
                                     id='scoreboard-content',
                                     sort_action='native',
