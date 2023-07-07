@@ -131,8 +131,15 @@ body{
     display: none;
 }
 
-#table-title, .filter-title, #lastseason-radio{
+#table-title, #lastseason-radio{
     color: var(--color_subtitle);
+}
+
+.filter-title{
+    color: var(--color_text);
+    text-align: center;
+    margin: 1rem;
+    font-weight: 500;
 }
 
 #table-filter{

@@ -149,22 +149,30 @@ def update_table(btn_lastseason, radio, slider, app_data):
     Output('scoreboard-content', 'data'),
     Output('scoreboard-content', 'style_data_conditional'),
     Output('scoreboard-container', 'style'),
-    Input('btn-budget', 'n_clicks'),
-    State('app-data', 'data'),
-    State('budget-slider', 'value'),
+    Input('scoreboard-slider', 'value'),
+    Input('app-data', 'data'),
     prevent_initial_call=True
 )
-def update_scoreboard(button, app_data, initial_budget):
+def update_scoreboard(budget, app_data):
+    '''
+    Chained with login function via Input('app-data', 'data') so this
+    callback can be triggered just after login, when 'app-data' is ready.
+    '''
     # Get data from session
     trigger = ctx.triggered[0]['prop_id'].split('.')[0]
     market_df = pd.DataFrame(json.loads(app_data['market']))
     rounds_df = pd.DataFrame(json.loads(app_data['rounds']))
-    if trigger == 'btn-budget':
-        # Deliver desired info
-        data, styles = api.show_scoreboard(initial_budget, market_df, rounds_df)
-        return data, styles, {'display': 'block', 'margin': '1rem'}
+    # Deliver desired info
+    if trigger == 'app-data':
+        show = {'display': 'block', 'margin': '1rem'}
+        data, styles = api.show_scoreboard(20, market_df, rounds_df)
+    elif trigger == 'scoreboard-slider':
+        show = {'display': 'block', 'margin': '1rem'}
+        data, styles = api.show_scoreboard(budget, market_df, rounds_df)
     else:
-        return no_update, no_update, no_update
+        data, styles, show = no_update, no_update, no_update
+    # Output
+    return data, styles, show
 
 
 # ------------------------ Run the app ----------------------------

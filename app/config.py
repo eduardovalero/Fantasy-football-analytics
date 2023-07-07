@@ -13,7 +13,6 @@ url = {
 # ----------------------------------- Chart ---------------------------------
 chart_titles = {
     'links': 'How do members trade players?',
-    'budget': 'Balance of the league members',
     'performance': 'Player efficiency',
     'fitness': 'Recent player fitness',
     'lastseason': 'Last season top performances',
@@ -26,11 +25,6 @@ chart_info = {
         Show the flux of transactions between league members.
         Hover a particular link to display the number of operations
         between the two members connected by the link.
-        ''',
-    'budget':
-        '''
-        Select the initial budget in millions and the actual budget will be 
-        calculated based on the history of transactions.
         ''',
     'performance':
         '''
@@ -145,7 +139,7 @@ spinner_dict = dict(
 
 slider_dict = dict(
     marks = None,
-    tooltip = {"placement": "topRight", "always_visible": True}
+    tooltip = {"placement": "bottom", "always_visible": True}
 )
 
 style_data = dict(

@@ -67,15 +67,6 @@ core = dbc.Row(
                     start_collapsed=True,
                     children=[
                         dbc.AccordionItem(
-                            id='budget-accordion',
-                            title=chart_titles['budget'],
-                            children=[
-                                html.P(chart_info['budget']),
-                                dcc.Slider(0, 100, 1, id='budget-slider', value=20, **slider_dict),
-                                dbc.Button('Calculate', id='btn-budget', n_clicks=0),
-                            ]
-                        ),
-                        dbc.AccordionItem(
                             id='links-accordion',
                             title=chart_titles['links'],
                             children=[
@@ -177,7 +168,9 @@ core = dbc.Row(
                             sort_action='native',
                             style_header=style_header,
                             style_data=style_data
-                        )
+                        ),
+                        html.P(className='filter-title', children='Initial budget (M)'),
+                        dcc.Slider(0, 100, 1, id='scoreboard-slider', value=20, **slider_dict),
                     ]
                 ),
                 html.Div(
