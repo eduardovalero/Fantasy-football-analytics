@@ -2,48 +2,9 @@ import dash.dcc as dcc
 import dash.html as html
 from dash import dash_table
 import dash_bootstrap_components as dbc
-from config import (chart_info, chart_titles, page_info, page_titles,  page_suptitles)
-
-
-# ---------------------------- Global variables -----------------------------------
-
-css = dict(
-    font = 'system-ui',
-    color_body = '#4E4E50',
-    color_navbar = '#1A1A1E',
-    color_title = '#C3073F',
-    color_subtitle = '#E3E2DF',
-    color_text = '#E3E2DF',
-    color_button = '#6F2232'
-)
-
-spinner_dict = dict(
-    fullscreen = True,
-    color = 'primary',
-    spinner_style = {'width': '5rem', 'height': '5rem'},
-    fullscreen_style = {'opacity': '0.5', 'z-index': '999999'}
-)
-
-slider_dict = dict(
-    marks = None,
-    tooltip = {"placement": "topRight", "always_visible": True}
-)
-
-style_data = dict(
-    textAlign = 'center',
-    fontFamily = css['font'],
-    backgroundColor = css['color_body'],
-    color = css['color_text']
-)
-
-style_header = dict(
-    textAlign = 'center',
-    fontFamily = css['font'],
-    backgroundColor = css['color_navbar'],
-    color = css['color_title']
-)
-
-positions = ['keeper', 'defender', 'midfielder', 'forward']
+from config import (chart_info, chart_titles, page_info, page_titles,
+                    page_suptitles, spinner_dict, slider_dict,
+                    style_data, style_header, positions)
 
 
 # -------------------------- App header ---------------------------------
@@ -151,6 +112,14 @@ core = dbc.Row(
                                 html.P(chart_info['lastseason']),
                                 dbc.Button('Display', id='btn-lastseason', n_clicks=0)
                             ]
+                        ),
+                        dbc.AccordionItem(
+                            id='advanced-accordion',
+                            title=chart_titles['advanced'],
+                            children=[
+                                html.P(chart_info['advanced']),
+                                dbc.Button('Display', id='btn-advanced', n_clicks=0)
+                            ]
                         )
                     ]
                 )
@@ -169,70 +138,83 @@ core = dbc.Row(
                         )
                     ],
                 ),
-                dbc.Spinner(
-                    **spinner_dict,
-                    children=[
-                        html.Div(
-                            id = 'table-container',
+                html.Div(
+                    id = 'chart-filter',
+                    children = [
+                        dbc.InputGroup(
+                            className='mb-3',
                             children=[
-                                html.H5(
-                                    id='table-title',
-                                    children='Top performances from last season'
-                                ),
-                                dash_table.DataTable(
-                                    id='table-content',
-                                    sort_action='native',
-                                    style_header=style_header,
-                                    style_data=style_data
-                                ),
-                                html.Div(
-                                    id='filter-area',
-                                    children=[
-                                        dbc.Col(
-                                            id='filter-position',
-                                            width=6,
-                                            children=[
-                                                html.P('Position', className='filter-title'),
-                                                dcc.RadioItems(positions, 'forward', id='lastseason-radio', inline=True)
-                                            ]
-                                        ),
-                                        dbc.Col(
-                                            id='filter-price',
-                                            width=6,
-                                            children=[
-                                                html.P('Price range (millions)', className='filter-title'),
-                                                dcc.RangeSlider(id='lastseason-slider', min=0, max=30, value=[5, 25], **slider_dict)
-                                            ]
-                                        )
-                                    ]
-                                )
-
+                                dbc.InputGroupText(children='Player 1'),
+                                dcc.Input(placeholder=" Type first player", type='text'),
                             ]
-                        )
-                    ],
+                        ),
+                        dbc.InputGroup(
+                            className='mb-3',
+                            children=[
+                                dbc.InputGroupText('Player 2'),
+                                dcc.Input(placeholder=" Type second player", type='text'),
+                            ]
+                        ),
+                        dbc.Button(
+                            id='chart-filter-btn',
+                            n_clicks=0,
+                            children='Compare'
+                        ),
+                    ]
                 )
             ]
         ),
         dbc.Col(
-            id='scoreboard',
+            id='information',
             width=3,
             children=[
-                dbc.Spinner(
-                    **spinner_dict,
+                html.Div(
+                    id='scoreboard-container',
                     children=[
+                        html.H5(id='scoreboard-title', children='League scoreboard'),
+                        dash_table.DataTable(
+                            id='scoreboard-content',
+                            sort_action='native',
+                            style_header=style_header,
+                            style_data=style_data
+                        )
+                    ]
+                ),
+                html.Div(
+                    id = 'table-container',
+                    children=[
+                        html.H5(
+                            id='table-title',
+                            children='Top performances from last season'
+                        ),
+                        dash_table.DataTable(
+                            id='table-content',
+                            sort_action='native',
+                            style_header=style_header,
+                            style_data=style_data
+                        ),
                         html.Div(
-                            id='scoreboard-container',
+                            id='table-filter',
                             children=[
-                                html.H5(id='scoreboard-title', children='League scoreboard'),
-                                dash_table.DataTable(
-                                    id='scoreboard-content',
-                                    sort_action='native',
-                                    style_header=style_header,
-                                    style_data=style_data
+                                dbc.Col(
+                                    id='table-filter-position',
+                                    width=6,
+                                    children=[
+                                        html.P('Position', className='filter-title'),
+                                        dcc.RadioItems(positions, 'forward', id='lastseason-radio', inline=True)
+                                    ]
+                                ),
+                                dbc.Col(
+                                    id='table-filter-price',
+                                    width=6,
+                                    children=[
+                                        html.P('Price range (millions)', className='filter-title'),
+                                        dcc.RangeSlider(id='lastseason-slider', min=0, max=30, value=[5, 25], **slider_dict)
+                                    ]
                                 )
                             ]
                         )
-                    ],
+                    ]
                 )
             ]
         )
@@ -266,7 +248,7 @@ modal = dbc.Modal(
                         className='mb-3',
                         children=[
                             dbc.InputGroupText('Email'),
-                            dbc.Input(id='modal-email', placeholder='john.doe@gmail.com')
+                            dbc.Input(id='modal-email', placeholder='john.doe@gmail.com', type='text')
                         ]
                     ),
                     dbc.InputGroup(
@@ -280,14 +262,14 @@ modal = dbc.Modal(
                         className='mb-3',
                         children=[
                             dbc.InputGroupText('User ID'),
-                            dbc.Input(id='modal-user', placeholder='7820380')
+                            dbc.Input(id='modal-user', placeholder='7820380', type='text')
                         ]
                     ),
                     dbc.InputGroup(
                         className='mb-3',
                         children=[
                             dbc.InputGroupText('League ID'),
-                            dbc.Input(id='modal-league', placeholder='512626')
+                            dbc.Input(id='modal-league', placeholder='512626', type='text')
                         ]
                     )
                 ],
@@ -304,6 +286,7 @@ modal = dbc.Modal(
             ),
         ],
     )
+
 
 # ------------------------------- Layout --------------------------------------
 layout = html.Div(

@@ -1,11 +1,7 @@
-import io
 import json
-import base64
 import pandas as pd
-from pandas import json_normalize
 from layout import layout
 import dash_bootstrap_components as dbc
-from time import strftime, strptime, localtime, mktime
 from config import page_info, page_titles, page_suptitles, epoch
 from dash import Dash, dcc, no_update, Input, Output, State, ctx, dash_table
 import functions as api
@@ -43,15 +39,23 @@ def login(button, email, password, user, league):
             # # Request players data
             # players_df = api.get_players(session)
             # players_json = players_df.to_json()
+            # # Request advanced stats from La Liga
+            # advanced_df = api.get_advanced_stats(session)
+            # advanced_json = advanced_df.to_json()
             # # Form app data dict
-            # app_data = {'market': market_json, 'rounds': rounds_json, 'players': players_json, 'email': email}
+            # app_data = {
+            #     'market': market_json,
+            #     'rounds': rounds_json,
+            #     'players': players_json,
+            #     'advanced': advanced_json
+            # }
             # Return on success
             # *****************
             app_data ={
                 'market': pd.read_excel('../data/market.xlsx').to_json(),
                 'rounds': pd.read_excel('../data/rounds.xlsx').to_json(),
                 'players': pd.read_excel('../data/players.xlsx').to_json(),
-                'email': 'edpvalero@gmail.com'
+                'advanced': pd.read_excel('../data/advanced.xlsx').to_json(),
             }
             # *****************
             return app_data, no_update, False
@@ -84,26 +88,32 @@ def update_accordion(path):
 @app.callback(
     Output('chart-content', 'figure'),
     Output('chart-container', 'style'),
+    Output('chart-filter', 'style'),
     Input('btn-efficiency', 'n_clicks'),
     Input('btn-links', 'n_clicks'),
     Input('btn-fitness', 'n_clicks'),
+    Input('btn-advanced', 'n_clicks'),
     State('app-data', 'data'),
     prevent_initial_call=True
 )
-def update_chart(btn_efficiency, btn_links, btn_fitness, app_data):
+def update_chart(btn_efficiency, btn_links, btn_fitness, btn_advanced, app_data):
     # Get data from session
     trigger = ctx.triggered[0]['prop_id'].split('.')[0]
     market_df = pd.DataFrame(json.loads(app_data['market']))
     players_df = pd.DataFrame(json.loads(app_data['players']))
+    advanced_df = pd.DataFrame(json.loads(app_data['advanced']))
     # Deliver desired info
     if trigger == 'btn-efficiency':
-        return api.plot_player_efficiency(players_df), {'display': 'block'}
+        return api.plot_player_efficiency(players_df), {'display': 'block'}, no_update
     elif trigger == 'btn-links':
-        return api.plot_links(market_df), {'display': 'block'}
+        return api.plot_links(market_df), {'display': 'block'}, no_update
     elif trigger == 'btn-fitness':
-        return api.plot_recent_fitness(players_df), {'display': 'block'}
+        return api.plot_recent_fitness(players_df), {'display': 'block'}, no_update
+    elif trigger == 'btn-advanced':
+        return api.plot_advanced(advanced_df), {'display': 'block'}, {'display': 'block'}
     else:
         return no_update, no_update
+
 
 # ------------------------ Table callback ----------------------------
 @app.callback(
@@ -122,13 +132,13 @@ def update_table(btn_lastseason, radio, slider, app_data):
     players_df = pd.DataFrame(json.loads(app_data['players']))
     # Deliver desired info
     if trigger == 'btn-lastseason':
-        data, styles = api.get_tops_from_last_season(players_df)
+        data, styles = api.get_table_lastseason(players_df)
         return data, styles, {'display': 'block', 'margin': '1rem'}
     elif trigger in ['lastseason-radio', 'lastseason-slider']:
         # Deliver desired info
         position = radio
         bounds = slider
-        data, styles = api.get_tops_from_last_season(players_df, position, bounds)
+        data, styles = api.get_table_lastseason(players_df, position, bounds)
         return data, styles, {'display': 'block', 'margin': '1rem'}
     else:
         no_update, no_update, no_update

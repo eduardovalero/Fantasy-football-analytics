@@ -2,12 +2,12 @@
 
 :root {
   --font: system-ui;
-  --color_body: #4E4E50;
+  --color_body: #1F2833;
   --color_navbar: #1A1A1E;
-  --color_title: #C3073F;
+  --color_title: #66FCF1;
   --color_subtitle: #E3E2DF;
   --color_text: #E3E2DF;
-  --color_button: #6F2232;
+  --color_button: #45A29E;
 }
 
 
@@ -90,6 +90,7 @@ body{
 
 .accordion-item {
   --bs-accordion-border-color: var(--color_body);
+  background-color: #000;
 }
 
 .accordion-body{
@@ -116,13 +117,17 @@ body{
     display: none;
 }
 
+#chart-filter{
+    display: none;
+}
+
 
 /* -------------------------------- Table ------------------------------- */
 
 #table-container{
     margin: auto;
     margin-top: 1rem;
-    padding-bottom: 2rem;
+    padding-bottom: 10rem;
     display: none;
 }
 
@@ -130,12 +135,12 @@ body{
     color: var(--color_subtitle);
 }
 
-#filter-area{
+#table-filter{
     margin-top: 1rem;
     margin-bottom: 2rem;
 }
 
-.filter-title{
+.table-filter-title{
     margin: auto;
     font-weight: bold;
     text-align: center;
@@ -143,11 +148,11 @@ body{
 
 }
 
-#filter-position{
+#table-filter-position{
     float: left;
 }
 
-#filter-price{
+#table-filter-price{
     float: right;
 }
 
@@ -165,6 +170,11 @@ body{
 
 /* --------------------------------- Modal -------------------------------- */
 
+.modal-content{
+    background-color: var(--color_body);
+    color: white;
+}
+
 #modal-title, #modal-btn{
     margin: auto;
 }
@@ -172,6 +182,7 @@ body{
 #modal-text{
     text-align: center;
 }
+
 
 /* ---------------------------- Other elements ---------------------------- */
 
@@ -192,6 +203,26 @@ body{
 h5{
     text-align: center;
     margin: 1rem;
+}
+
+.input-group-text{
+    background-color: var(--color_navbar);
+    border-color: var(--color_button);
+    color: var(--color_text);
+    border: solid 1px var(--color_title);
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    border-right: 0px;
+}
+
+input[type=text], input[type=password]{
+    background-color: var(--color_body);
+    border-color: var(--color_button);
+    color: var(--color_text);
+    border: solid 1px var(--color_title);
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    border-left: 0px;
 }
 
 input[type=radio]{

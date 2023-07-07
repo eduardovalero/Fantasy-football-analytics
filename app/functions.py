@@ -1,26 +1,16 @@
 import json
 import requests
-import colorlover
 import numpy as np
 import pandas as pd
 import seaborn as sns
 import plotly.express as px
 import plotly.graph_objs as go
-from config import url
 from time import strftime, localtime
 from plotly.express.colors import sample_colorscale
+from config import url, chart_options, advanced_stats, laliga_map
 
 
-# Global variables
-chart_options = dict(
-    font={'size': 16, 'family': 'system-ui', 'color': '#E3E2DF'},
-    height=750,
-    paper_bgcolor='#4E4E50',
-    plot_bgcolor=' #4E4E50',
-    xaxis={'gridwidth': 1, 'gridcolor': '#E3E2DF'},
-    yaxis={'gridwidth': 1, 'gridcolor': '#E3E2DF'}
-)
-
+# ------------------------------------- API ----------------------------------------
 
 def login(email, password):
     '''
@@ -145,6 +135,51 @@ def get_market(session, token, epoch, league, user):
         # Update offset for next request
         offset += limit
 
+
+def get_advanced_stats(session):
+
+    # HTTP request variables
+    limit = 100
+    offset = 0
+    players = list()
+
+    while True:
+        # Request batch of the players
+        stats = session.get(
+            url = url['advanced'] + f'stats?limit={limit}&offset={offset}&orderField=name&orderType=ASC',
+            headers={"ocp-apim-subscription-key": "c13c3a8e2f6b46da9c5c425cf61fab3e"},
+        )
+        # While data is returned
+        if stats.json():
+            if stats.status_code == 200:
+                # Append returned data
+                players.append(stats.json()['player_stats'])
+                offset += 100
+            else:
+                raise Exception(f'Stats | Status code = {stats.status_code}')
+        # When all data have been returned
+        else:
+            # Flatten gathered list
+            players = [item for sublist in players for item in sublist]
+            # Create dataframe
+            df = pd.DataFrame(players)
+            # Explode stats into columns
+            df = pd.concat(
+                objs=[
+                    df.drop('stats', axis=1),
+                    pd.DataFrame(
+                        [{x['name']: x['stat'] for x in row} for row in
+                         df['stats']])],
+                axis=1
+            )
+            # Fill NaNs with zeroes
+            df.fillna(value=0, inplace=True)
+            # Map name of positions between LaLiga and Football fantasy
+            df['position'] = df['position'].apply(lambda x: laliga_map[x['name']] if x else 'undefined')
+            return df
+
+
+# ----------------------------- Data analysis --------------------------------------
 
 def show_scoreboard(initial_budget, market_df, rounds_df):
     '''
@@ -273,13 +308,81 @@ def plot_recent_fitness(players_df):
     return fig
 
 
-def get_tops_from_last_season(players_df, position='forward', bounds=[0, 100], N=10):
+def plot_advanced(advanced_df):
+    pos = 'forward'
+    df = advanced_df.copy()
+    df = df.loc[df['position'] == 'forward'][['name', 'position'] + advanced_stats[pos]]
+    # *************************************************
+    df = df.sort_values(by='goals', ascending=False)
+    ranges = list(df[advanced_stats[pos]].max().values)
+    metrics = [x.replace('_', ' ').capitalize() for x in advanced_stats[pos]]
+    labels = [metric_i + f' ({range_i})' for metric_i, range_i in zip(metrics, ranges)]
+    # *************************************************
+    fig = go.Figure()
+    for index in range(3):
+        # *************************************************
+        values = list(df.iloc[index][advanced_stats[pos]])
+        scaled = [round(value_i / range_i, 2) for value_i, range_i in zip(values, ranges)]
+        # *************************************************
+        fig.add_trace(go.Scatterpolar(
+            r=scaled,
+            theta=labels,
+            fill='toself',
+            name=df.iloc[index]['name']
+            )
+        )
+    fig.update_layout(
+        title={'text': 'Advanced player statistics', 'x': 0.5, 'y': 0.95},
+        polar=dict(bgcolor = chart_options['paper_bgcolor'], radialaxis={'visible': True, 'range': [0, 1]}),
+        showlegend=False,
+        **chart_options
+    )
+
+    return fig
+
+
+
+
+
+
+    pos = 'forward'
+    df = advanced_df.copy()
+    df = df.loc[df['position'] == 'forward'][['name', 'position'] + advanced_stats[pos]]
+    # ********************************
+    means = list(df[advanced_stats[pos]].mean().values)
+    ranges = list(df[advanced_stats[pos]].max().values)
+    scaled = [mean_value]
+
+    for idx, value in enumerate(ranges):
+        means[idx] = means[idx] / ranges[idx]
+    # ********************************
+    fig = go.Figure()
+    labels = [x.replace('_', ' ').capitalize() for x in advanced_stats[pos]]
+    for index in range(3):
+        fig.add_trace(go.Scatterpolar(
+                r=list(df.iloc[index][advanced_stats[pos]]),
+                theta=labels,
+                fill='toself',
+                name=df.iloc[index]['name']
+            )
+        )
+    fig.update_layout(
+        polar=dict(radialaxis={'visible': True}),
+        showlegend=False,
+        **chart_options
+    )
+
+    return fig
+
+
+def get_table_lastseason(players_df, position='forward', bounds=[0, 100], N=10):
     # Columns to keep
     cols = ['name', 'position', 'status', 'price', 'pointsLastSeason']
     df = players_df[cols].copy()
     # Segment data
     df_pos = df.loc[(df['position'] == position) & (bounds[0]*1e6 <= df['price']) & (df['price'] <= bounds[1]*1e6)]
     df_pos = df_pos.sort_values(by=['pointsLastSeason'], ascending=False)
+    df_pos.drop(labels='position', axis=1, inplace=True)
     df_pos.reset_index(drop=True, inplace=True)
     df_pos_top = df_pos.loc[0:N-1]
     # Get table styles
@@ -305,8 +408,8 @@ def discrete_background_color_bins(df, columns, n_bins=7):
     df_use = df[columns]
 
     # Select colors from scale
-    sample = np.linspace(0.45, 0.85, len(df) + 1)
-    colors = list(reversed(sample_colorscale(colorscale='Turbo', samplepoints=list(sample))))
+    sample = np.linspace(0, 1, len(df) + 1)
+    colors = list(reversed(sample_colorscale(colorscale='Blues', samplepoints=list(sample))))
     bounds = np.linspace(0, 1, len(df) + 1)
 
     # Define ranges
