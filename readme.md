@@ -1,7 +1,7 @@
 # 0. Disclaimer
 This project is currently under development. Some functionalities may not be available yet.
 To try this application, run './app/app.py', leave the login form fields blank and click 'Sign in'.
-![alt text](pics/login.PNG)
+![alt text](pics/example.gif)
 
 # 1. Objective
 This project consists of a web application whose objective is twofold: 
@@ -27,15 +27,20 @@ are unlocked and the user can perform different analyses.
 ## 4.1. Market analysis
 1. Show the flux of transactions between league members.
 ![alt text](pics/market.PNG)
+
 2. Calculate the financial balance and score of the league members.
 ![alt text](pics/scoreboard.PNG)
+
 ## 4.2. Player analysis
 1. Estimate player efficiency in terms of points per game/million.
 ![alt text](pics/efficiency.PNG)
+
 2. Visualize player recent fitness.
 ![alt text](pics/fitness.png)
+
 3. Check player performance during last season.
 ![alt text](pics/last.PNG)
+
 4. Compare players using advanced stats.
 ![alt text](pics/advanced.PNG)
 
