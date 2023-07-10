@@ -136,6 +136,19 @@ def update_players(position, app_data):
     return [html.Option(value=name) for name in names]
 
 
+@app.callback(
+    Output('btn-chart-filter', 'disabled'),
+    Input('chart-filter-input1', 'value'),
+    Input('chart-filter-input2', 'value'),
+    prevent_initial_call=True
+)
+def enable_player_filter(name1, name2):
+    if name1 and name2:
+        return False
+    else:
+        return True
+
+
 # ------------------------ Table callback ----------------------------
 @app.callback(
     Output('table-content', 'data'),

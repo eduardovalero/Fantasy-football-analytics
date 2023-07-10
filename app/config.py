@@ -100,6 +100,13 @@ chart_options = dict(
 )
 
 advanced_stats = dict(
+    keeper = [
+        'games_played',
+        'yellow_cards',
+        'saves_made',
+        'goals_conceded',
+        'clean_sheets'
+    ],
     defender = [
         'games_played',
         'yellow_cards',

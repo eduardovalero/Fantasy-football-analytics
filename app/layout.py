@@ -143,7 +143,7 @@ core = dbc.Row(
                                 dbc.InputGroupText(children='Player 1'),
                                 dcc.Input(
                                     id='chart-filter-input1',
-                                    placeholder=" Type first player",
+                                    placeholder=" Select first player",
                                     type='text',
                                     list='chart-filter-list'
                                 ),
@@ -155,7 +155,7 @@ core = dbc.Row(
                                 dbc.InputGroupText('Player 2'),
                                 dcc.Input(
                                     id='chart-filter-input2',
-                                    placeholder=" Type second player",
+                                    placeholder=" Select second player",
                                     type='text',
                                     list='chart-filter-list')
                             ]
@@ -163,6 +163,7 @@ core = dbc.Row(
                         dbc.Button(
                             id='btn-chart-filter',
                             n_clicks=0,
+                            disabled=True,
                             children='Compare'
                         ),
                     ]

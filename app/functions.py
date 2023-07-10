@@ -334,12 +334,12 @@ def plot_advanced(advanced_df, name1, name2):
     for index in range(len(df)):
         # Scale all plot axis so the chart is interpretable
         values = list(df.iloc[index][stats])
-        scaled = [round(value_i / range_i, 2) for value_i, range_i in zip(values, ranges)]
+        scaled = [round(value_i / range_i, 2) if range_i != 0 else range_i for value_i, range_i in zip(values, ranges)]
         # Plot player
         fig.add_trace(go.Scatterpolar(
             r=scaled,
             theta=labels,
-            fill='toself',
+            fill='tonext',
             name=df.iloc[index]['name']
             )
         )
