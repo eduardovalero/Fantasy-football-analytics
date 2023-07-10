@@ -6,7 +6,7 @@ To try this application, run './app/app.py', leave the login form fields blank a
 # 1. Objective
 This project consists of a web application whose objective is twofold: 
 - to analyze a Fantasy Football league (transfers, points, player scores, etc).
-- to provide advances statistics for player analysis via multitple chart types and tables.
+- to provide advanced statistics for player analysis via multitple chart types and tables.
 
 # 2. Design
 The web application is designed as a four element body:
@@ -33,7 +33,7 @@ are unlocked and the user can perform different analyses.
 1. Estimate player efficiency in terms of points per game/million.
 ![alt text](pics/efficiency.PNG)
 2. Visualize player recent fitness.
-![alt text](pics/fitness.PNG)
+![alt text](pics/fitness.png)
 3. Check player performance during last season.
 ![alt text](pics/last.PNG)
 4. Compare players using advanced stats.
