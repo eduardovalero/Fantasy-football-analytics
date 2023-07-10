@@ -308,22 +308,34 @@ def plot_recent_fitness(players_df):
     return fig
 
 
-def plot_advanced(advanced_df):
-    pos = 'forward'
+def plot_advanced(advanced_df, name1, name2):
+    '''
+    Plots a radar chart displaying advanced statistics of two players
+    whose names are provided as input parameters. The statistics are
+    selected based on the position of the two players.
+
+    :param advanced_df: advanced stats dataframe from La Liga.
+    :param name1: name of player 1.
+    :param name2: name of player 2.
+    :return: radar plot.
+    '''
+
+    # Process data
     df = advanced_df.copy()
-    df = df.loc[df['position'] == 'forward'][['name', 'position'] + advanced_stats[pos]]
-    # *************************************************
-    df = df.sort_values(by='goals', ascending=False)
-    ranges = list(df[advanced_stats[pos]].max().values)
-    metrics = [x.replace('_', ' ').capitalize() for x in advanced_stats[pos]]
+    pos = df.loc[df['name'] == name1]['position'].values[0]
+    stats = advanced_stats[pos]
+    df = df.loc[df['name'].isin([name1, name2])][['name', 'position'] + stats]
+    # Chart ranges
+    ranges = list(df[stats].max().values)
+    metrics = [x.replace('_', ' ').capitalize() for x in stats]
     labels = [metric_i + f' ({range_i})' for metric_i, range_i in zip(metrics, ranges)]
-    # *************************************************
+    # Loop players to plot
     fig = go.Figure()
-    for index in range(3):
-        # *************************************************
-        values = list(df.iloc[index][advanced_stats[pos]])
+    for index in range(len(df)):
+        # Scale all plot axis so the chart is interpretable
+        values = list(df.iloc[index][stats])
         scaled = [round(value_i / range_i, 2) for value_i, range_i in zip(values, ranges)]
-        # *************************************************
+        # Plot player
         fig.add_trace(go.Scatterpolar(
             r=scaled,
             theta=labels,
@@ -334,40 +346,6 @@ def plot_advanced(advanced_df):
     fig.update_layout(
         title={'text': 'Advanced player statistics', 'x': 0.5, 'y': 0.95},
         polar=dict(bgcolor = chart_options['paper_bgcolor'], radialaxis={'visible': True, 'range': [0, 1]}),
-        showlegend=False,
-        **chart_options
-    )
-
-    return fig
-
-
-
-
-
-
-    pos = 'forward'
-    df = advanced_df.copy()
-    df = df.loc[df['position'] == 'forward'][['name', 'position'] + advanced_stats[pos]]
-    # ********************************
-    means = list(df[advanced_stats[pos]].mean().values)
-    ranges = list(df[advanced_stats[pos]].max().values)
-    scaled = [mean_value]
-
-    for idx, value in enumerate(ranges):
-        means[idx] = means[idx] / ranges[idx]
-    # ********************************
-    fig = go.Figure()
-    labels = [x.replace('_', ' ').capitalize() for x in advanced_stats[pos]]
-    for index in range(3):
-        fig.add_trace(go.Scatterpolar(
-                r=list(df.iloc[index][advanced_stats[pos]]),
-                theta=labels,
-                fill='toself',
-                name=df.iloc[index]['name']
-            )
-        )
-    fig.update_layout(
-        polar=dict(radialaxis={'visible': True}),
         showlegend=False,
         **chart_options
     )
@@ -409,7 +387,7 @@ def discrete_background_color_bins(df, columns, n_bins=7):
 
     # Select colors from scale
     sample = np.linspace(0, 1, len(df) + 1)
-    colors = list(reversed(sample_colorscale(colorscale='Blues', samplepoints=list(sample))))
+    colors = list(reversed(sample_colorscale(colorscale='Greens', samplepoints=list(sample))))
     bounds = np.linspace(0, 1, len(df) + 1)
 
     # Define ranges

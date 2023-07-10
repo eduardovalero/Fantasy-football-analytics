@@ -120,6 +120,53 @@ core = dbc.Row(
             id='core',
             width=6,
             children=[
+                html.Div(
+                    id = 'chart-filter',
+                    children = [
+                        html.Datalist(
+                            id='chart-filter-list',
+                            children=[]
+                        ),
+                        html.P(
+                            children='Players position',
+                            className='filter-title'
+                        ),
+                        dcc.RadioItems(
+                            options=positions,
+                            value=False,
+                            id='chart-filter-radio',
+                            inline=True
+                        ),
+                        dbc.InputGroup(
+                            className='mb-3',
+                            children=[
+                                dbc.InputGroupText(children='Player 1'),
+                                dcc.Input(
+                                    id='chart-filter-input1',
+                                    placeholder=" Type first player",
+                                    type='text',
+                                    list='chart-filter-list'
+                                ),
+                            ]
+                        ),
+                        dbc.InputGroup(
+                            className='mb-3',
+                            children=[
+                                dbc.InputGroupText('Player 2'),
+                                dcc.Input(
+                                    id='chart-filter-input2',
+                                    placeholder=" Type second player",
+                                    type='text',
+                                    list='chart-filter-list')
+                            ]
+                        ),
+                        dbc.Button(
+                            id='btn-chart-filter',
+                            n_clicks=0,
+                            children='Compare'
+                        ),
+                    ]
+                ),
                 dbc.Spinner(
                     **spinner_dict,
                     children=[
@@ -128,30 +175,6 @@ core = dbc.Row(
                             children=[dcc.Graph(id='chart-content')]
                         )
                     ],
-                ),
-                html.Div(
-                    id = 'chart-filter',
-                    children = [
-                        dbc.InputGroup(
-                            className='mb-3',
-                            children=[
-                                dbc.InputGroupText(children='Player 1'),
-                                dcc.Input(placeholder=" Type first player", type='text'),
-                            ]
-                        ),
-                        dbc.InputGroup(
-                            className='mb-3',
-                            children=[
-                                dbc.InputGroupText('Player 2'),
-                                dcc.Input(placeholder=" Type second player", type='text'),
-                            ]
-                        ),
-                        dbc.Button(
-                            id='chart-filter-btn',
-                            n_clicks=0,
-                            children='Compare'
-                        ),
-                    ]
                 )
             ]
         ),
@@ -194,7 +217,7 @@ core = dbc.Row(
                                     width=6,
                                     children=[
                                         html.P('Position', className='filter-title'),
-                                        dcc.RadioItems(positions, 'forward', id='lastseason-radio', inline=True)
+                                        dcc.RadioItems(positions, 'forward', id='lastseason-radio', inline=False)
                                     ]
                                 ),
                                 dbc.Col(

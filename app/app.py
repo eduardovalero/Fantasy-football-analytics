@@ -1,9 +1,10 @@
 import json
 import pandas as pd
+import dash.html as html
 from layout import layout
 import dash_bootstrap_components as dbc
-from config import page_info, page_titles, page_suptitles, epoch
-from dash import Dash, dcc, no_update, Input, Output, State, ctx, dash_table
+from config import page_info, page_titles, page_suptitles
+from dash import Dash, no_update, Input, Output, State, ctx
 import functions as api
 
 # ------------------------ Initialization ----------------------------
@@ -93,10 +94,13 @@ def update_accordion(path):
     Input('btn-links', 'n_clicks'),
     Input('btn-fitness', 'n_clicks'),
     Input('btn-advanced', 'n_clicks'),
+    Input('btn-chart-filter', 'n_clicks'),
     State('app-data', 'data'),
+    State('chart-filter-input1', 'value'),
+    State('chart-filter-input2', 'value'),
     prevent_initial_call=True
 )
-def update_chart(btn_efficiency, btn_links, btn_fitness, btn_advanced, app_data):
+def update_chart(btn_efficiency, btn_links, btn_fitness, btn_advanced, btn_filter, app_data, name1, name2):
     # Get data from session
     trigger = ctx.triggered[0]['prop_id'].split('.')[0]
     market_df = pd.DataFrame(json.loads(app_data['market']))
@@ -104,15 +108,32 @@ def update_chart(btn_efficiency, btn_links, btn_fitness, btn_advanced, app_data)
     advanced_df = pd.DataFrame(json.loads(app_data['advanced']))
     # Deliver desired info
     if trigger == 'btn-efficiency':
-        return api.plot_player_efficiency(players_df), {'display': 'block'}, no_update
+        return api.plot_player_efficiency(players_df), {'display': 'block'}, {'display': 'none'}
     elif trigger == 'btn-links':
-        return api.plot_links(market_df), {'display': 'block'}, no_update
+        return api.plot_links(market_df), {'display': 'block'}, {'display': 'none'}
     elif trigger == 'btn-fitness':
-        return api.plot_recent_fitness(players_df), {'display': 'block'}, no_update
+        return api.plot_recent_fitness(players_df), {'display': 'block'}, {'display': 'none'}
     elif trigger == 'btn-advanced':
-        return api.plot_advanced(advanced_df), {'display': 'block'}, {'display': 'block'}
+        return {'display': 'none'}, {'display': 'none'}, {'display': 'block'}
+    elif trigger == 'btn-chart-filter':
+        return api.plot_advanced(advanced_df, name1, name2), {'display': 'block'}, {'display': 'block'}
     else:
         return no_update, no_update
+
+
+@app.callback(
+    Output('chart-filter-list', 'children'),
+    Input('chart-filter-radio', 'value'),
+    State('app-data', 'data'),
+    prevent_initial_call=True
+)
+def update_players(position, app_data):
+    # Get data from session
+    df = pd.DataFrame(json.loads(app_data['advanced']))
+    # Filter data by position
+    names = list(df.loc[df['position'] == position]['name'])
+    # Output options based on names
+    return [html.Option(value=name) for name in names]
 
 
 # ------------------------ Table callback ----------------------------
@@ -157,6 +178,8 @@ def update_scoreboard(budget, app_data):
     '''
     Chained with login function via Input('app-data', 'data') so this
     callback can be triggered just after login, when 'app-data' is ready.
+
+    This function creates and shows the league scoreboard upon login.
     '''
     # Get data from session
     trigger = ctx.triggered[0]['prop_id'].split('.')[0]

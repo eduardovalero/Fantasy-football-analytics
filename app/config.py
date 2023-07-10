@@ -59,7 +59,6 @@ page_titles = {
     'players': 'Explore different performance metrics from La Liga players'
 }
 
-
 page_info = {
     'market':
         '''
@@ -80,29 +79,30 @@ page_info = {
 
 css = dict(
     font = 'system-ui',
-    color_body = '#1F2833',
-    color_navbar = '#1A1A1E',
-    color_title = '#66FCF1',
-    color_subtitle = '#E3E2DF',
-    color_text = '#E3E2DF',
-    color_button = '#45A29E'
+    color_body = '#333140',
+    color_navbar = '#000000',
+    color_sidebar = '#333140',
+    color_title = '#0ABF7D',
+    color_subtitle = '#FFCF43',
+    color_text = '#FFFFFF',
+    color_button = '#46A683'
 )
 
 epoch = int(mktime(strptime('23-07-2022 05:00:00', '%d-%m-%Y %H:%M:%S')))
 
 chart_options = dict(
-    font = {'size': 16, 'family': 'system-ui', 'color': '#E3E2DF'},
+    font = {'size': 16, 'family': 'system-ui', 'color': css['color_text']},
     height = 750,
-    paper_bgcolor = '#1F2833',
-    plot_bgcolor = '#1F2833',
-    xaxis = {'gridwidth': 1, 'gridcolor': '#E3E2DF'},
-    yaxis = {'gridwidth': 1, 'gridcolor': '#E3E2DF'}
+    paper_bgcolor = 'rgba(0,0,0,0)',
+    plot_bgcolor = 'rgba(0,0,0,0)',
+    xaxis = {'gridwidth': 1, 'gridcolor': css['color_text']},
+    yaxis = {'gridwidth': 1, 'gridcolor': css['color_text']}
 )
 
 advanced_stats = dict(
     defender = [
         'games_played',
-        'yellow_cards'
+        'yellow_cards',
         'total_red_cards',
         'total_clearances',
         'duels_won'
@@ -132,7 +132,7 @@ laliga_map = dict(
 
 spinner_dict = dict(
     fullscreen = True,
-    color = 'primary',
+    color = css['color_title'],
     spinner_style = {'width': '5rem', 'height': '5rem'},
     fullscreen_style = {'opacity': '0.5', 'z-index': '999999'}
 )
@@ -152,8 +152,9 @@ style_data = dict(
 style_header = dict(
     textAlign = 'center',
     fontFamily = css['font'],
-    backgroundColor = css['color_navbar'],
-    color = css['color_title']
+    fontWeight = 'bold',
+    backgroundColor = css['color_body'],
+    color = css['color_text']
 )
 
 positions = ['keeper', 'defender', 'midfielder', 'forward']
