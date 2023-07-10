@@ -191,7 +191,9 @@ core = dbc.Row(
                             id='scoreboard-content',
                             sort_action='native',
                             style_header=style_header,
-                            style_data=style_data
+                            style_data=style_data,
+                            style_cell={'padding': '5px'},
+                            style_as_list_view=True
                         ),
                         html.P(className='filter-title', children='Initial budget (M)'),
                         dcc.Slider(0, 100, 1, id='scoreboard-slider', value=20, **slider_dict),
@@ -208,7 +210,9 @@ core = dbc.Row(
                             id='table-content',
                             sort_action='native',
                             style_header=style_header,
-                            style_data=style_data
+                            style_data=style_data,
+                            style_cell={'padding': '5px'},
+                            style_as_list_view=True
                         ),
                         html.Div(
                             id='table-filter',

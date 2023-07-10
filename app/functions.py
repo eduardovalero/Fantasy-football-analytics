@@ -396,7 +396,7 @@ def discrete_background_color_bins(df, columns, n_bins=7):
     ranges = [((df_max - df_min) * i) + df_min for i in bounds]
     styles = list()
 
-    # Asign colors to cell
+    # Assign colors to cell
     for i in range(1, len(bounds)):
         min_bound = ranges[i - 1]
         max_bound = ranges[i]
