@@ -88,7 +88,7 @@ css = dict(
     color_button = '#46A683'
 )
 
-epoch = int(mktime(strptime('23-07-2022 05:00:00', '%d-%m-%Y %H:%M:%S')))
+epoch = int(mktime(strptime('10-07-2023 05:00:00', '%d-%m-%Y %H:%M:%S')))
 
 chart_options = dict(
     font = {'size': 16, 'family': 'system-ui', 'color': css['color_text']},

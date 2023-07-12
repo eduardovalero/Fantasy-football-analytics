@@ -3,7 +3,7 @@ import pandas as pd
 import dash.html as html
 from layout import layout
 import dash_bootstrap_components as dbc
-from config import page_info, page_titles, page_suptitles
+from config import page_info, page_titles, page_suptitles, epoch
 from dash import Dash, no_update, Input, Output, State, ctx
 import functions as api
 
@@ -30,35 +30,36 @@ app.layout = layout
 def login(button, email, password, user, league):
     if button:
         try:
-            # session, token = api.login(email, password)
-            # # Request market data
-            # market_df, rounds_df = api.get_market(session, token, epoch, league, user)
-            # market_json = market_df.to_json()
-            # # Remove duplicates from rounds_df (this happens when a player performance is corrected)
-            # rounds_df.drop_duplicates(subset=['round', 'member'], inplace=True)
-            # rounds_json = rounds_df.to_json()
-            # # Request players data
-            # players_df = api.get_players(session)
-            # players_json = players_df.to_json()
-            # # Request advanced stats from La Liga
-            # advanced_df = api.get_advanced_stats(session)
-            # advanced_json = advanced_df.to_json()
-            # # Form app data dict
-            # app_data = {
-            #     'market': market_json,
-            #     'rounds': rounds_json,
-            #     'players': players_json,
-            #     'advanced': advanced_json
-            # }
-            # Return on success
-            # *****************
-            app_data ={
-                'market': pd.read_excel('../data/market.xlsx').to_json(),
-                'rounds': pd.read_excel('../data/rounds.xlsx').to_json(),
-                'players': pd.read_excel('../data/players.xlsx').to_json(),
-                'advanced': pd.read_excel('../data/advanced.xlsx').to_json(),
-            }
-            # *****************
+            # Enter demo mode when login form is not filled
+            if not email and not password and not user and not league:
+                app_data = {
+                    'market': pd.read_excel('../data/market.xlsx').to_json(),
+                    'rounds': pd.read_excel('../data/rounds.xlsx').to_json(),
+                    'players': pd.read_excel('../data/players.xlsx').to_json(),
+                    'advanced': pd.read_excel('../data/advanced.xlsx').to_json(),
+                }
+            # Else create a session and login
+            else:
+                session, token = api.login(email, password)
+                # Request market data
+                market_df, rounds_df = api.get_market(session, token, epoch, league, user)
+                market_json = market_df.to_json()
+                # Remove duplicates from rounds_df (this happens when a player performance is corrected)
+                rounds_df.drop_duplicates(subset=['round', 'member'], inplace=True)
+                rounds_json = rounds_df.to_json()
+                # Request players data
+                players_df = api.get_players(session)
+                players_json = players_df.to_json()
+                # Request advanced stats from La Liga
+                advanced_df = api.get_advanced_stats(session)
+                advanced_json = advanced_df.to_json()
+                # Form app data dict
+                app_data = {
+                    'market': market_json,
+                    'rounds': rounds_json,
+                    'players': players_json,
+                    'advanced': advanced_json
+                }
             return app_data, no_update, False
         except:
             # Return on exception
