@@ -136,6 +136,34 @@ def get_market(session, token, epoch, league, user):
         offset += limit
 
 
+def get_standings(session, token, league, user):
+    '''
+    Returns the current league standings.
+
+    :param session: requests session created by main loop.
+    :param token: session token generated upon login.
+    :param league: the id of the league.
+    :param user: the id of the player.
+    :return: standings dataframe.
+    '''
+
+    # Get league standings
+    standings = session.get(
+        url=url['standings'],
+        headers={
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {token}',
+            'X-League': league,
+            'X-User': user
+        }
+    )
+
+    # Convert to dataframe
+    df = pd.DataFrame.from_dict(standings.json()['data']['standings'])
+    df.drop(columns=['id', 'icon', 'lastPositions', 'role', 'lastAccess', 'lastTrophy', 'teamSize'], inplace = True)
+
+    return df
+
 def get_advanced_stats(session):
 
     # HTTP request variables
@@ -181,7 +209,7 @@ def get_advanced_stats(session):
 
 # ----------------------------- Data analysis --------------------------------------
 
-def show_scoreboard(initial_budget, market_df, rounds_df):
+def show_scoreboard(initial_budget, market_df, rounds_df, standings_df):
     '''
     Creates a table showing the economic balance and current poitns of the
     league members.
@@ -189,33 +217,32 @@ def show_scoreboard(initial_budget, market_df, rounds_df):
     :param initial_budget: initial budget in (€) millions set by the league.
     :param market_df: market dataframe.
     :param rounds_df: rounds dataframe.
+    :param standings_df: standings dataframe.
     :return: data to show in the table as a dict.
     '''
 
-    # Sells per member
-    sell_df = market_df.groupby('seller')['amount'].sum().reset_index()
-    sell_df.drop(sell_df.loc[sell_df['seller'] == 'market'].index, inplace=True)
-    sell_df.set_index('seller', inplace=True)
-    # Buys per member
-    buy_df = market_df.groupby('buyer')['amount'].sum().reset_index()
-    buy_df.drop(buy_df.loc[buy_df['buyer'] == 'market'].index, inplace=True)
-    buy_df.set_index('buyer', inplace=True)
-    # Bonuses per member
-    bonus_df = rounds_df.groupby('member', as_index=False)['bonus'].sum()
-    bonus_df.set_index('member', inplace=True)
-    # Points per member
-    points_df = rounds_df.groupby('member', as_index=False)['points'].sum()
-    points_df.set_index('member', inplace=True)
-    # Estimate budget
-    final_df = pd.DataFrame({
-        'member': bonus_df.index.to_list(),
-        'points': points_df['points'],
-        'balance': (sell_df['amount'] - buy_df['amount'] + initial_budget*1e6 + bonus_df['bonus'])/1e6
-    })
+    # Prepare output
+    df = standings_df.copy()
+    df.insert(loc=standings_df.shape[1], column='balance', value=[initial_budget]*len(standings_df))
+    # Extract sells and buys
+    if not market_df.empty:
+        sell_df = market_df.groupby('seller')['amount'].sum().reset_index()
+        buy_df = market_df.groupby('buyer')['amount'].sum().reset_index()
+        # Update balance
+        df['balance'] -= df.apply(lambda x: buy_df.loc[buy_df['buyer'] == x['name']]['amount'].values[0]
+                                            if x['name'] in buy_df['buyer'].to_list() else 0, axis=1)
+        df['balance'] += df.apply(lambda x: sell_df.loc[sell_df['seller'] == x['name']]['amount'].values[0]
+                                            if x['name'] in sell_df['seller'].to_list() else 0, axis=1)
+    # Extract bonuses
+    if not rounds_df.empty:
+        bonus_df = rounds_df.groupby('member', as_index=False)['bonus'].sum()
+        # Update balance
+        df['balance'] += df.apply(lambda x: bonus_df.loc[bonus_df['member'] == x['name']]['bonus'].values[0]
+                                  if x['name'] in bonus_df['member'].to_list() else 0, axis=1)
     # Get color scale for the balance column
-    styles = discrete_background_color_bins(df=final_df, columns=['balance'])
+    styles = discrete_background_color_bins(df=df, columns=['balance'])
 
-    return final_df.to_dict('records'), styles
+    return df.to_dict('records'), styles
 
 
 def plot_player_efficiency(players_df):

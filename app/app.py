@@ -37,28 +37,29 @@ def login(button, email, password, user, league):
                     'rounds': pd.read_excel('./data/rounds.xlsx').to_json(),
                     'players': pd.read_excel('./data/players.xlsx').to_json(),
                     'advanced': pd.read_excel('./data/advanced.xlsx').to_json(),
+                    'standings': pd.read_excel('./data/standings.xlsx').to_json(),
                 }
             # Else create a session and login
             else:
                 session, token = api.login(email, password)
-                # Request market data
+                # Request all data
                 market_df, rounds_df = api.get_market(session, token, epoch, league, user)
-                market_json = market_df.to_json()
-                # Remove duplicates from rounds_df (this happens when a player performance is corrected)
-                rounds_df.drop_duplicates(subset=['round', 'member'], inplace=True)
-                rounds_json = rounds_df.to_json()
-                # Request players data
                 players_df = api.get_players(session)
-                players_json = players_df.to_json()
-                # Request advanced stats from La Liga
                 advanced_df = api.get_advanced_stats(session)
-                advanced_json = advanced_df.to_json()
+                standings_df = api.get_standings(session, token, league, user)
+                # Convert to JSON
+                market_json = market_df.to_json() if not market_df.empty else "{}"
+                rounds_json = rounds_df.drop_duplicates(subset=['round', 'member'], inplace=True).to_json() if not rounds_df.empty else "{}"
+                players_json = players_df.to_json() if not players_df.empty else "{}"
+                advanced_json = advanced_df.to_json() if not advanced_df.empty else "{}"
+                standings_json = standings_df.to_json() if not advanced_df.empty else "{}"
                 # Form app data dict
                 app_data = {
                     'market': market_json,
                     'rounds': rounds_json,
                     'players': players_json,
-                    'advanced': advanced_json
+                    'advanced': advanced_json,
+                    'standings': standings_json
                 }
             return app_data, no_update, False
         except:
@@ -199,13 +200,14 @@ def update_scoreboard(budget, app_data):
     trigger = ctx.triggered[0]['prop_id'].split('.')[0]
     market_df = pd.DataFrame(json.loads(app_data['market']))
     rounds_df = pd.DataFrame(json.loads(app_data['rounds']))
+    standings_df = pd.DataFrame(json.loads(app_data['standings']))
     # Deliver desired info
     if trigger == 'app-data':
         show = {'display': 'block', 'margin': '1rem'}
-        data, styles = api.show_scoreboard(20, market_df, rounds_df)
+        data, styles = api.show_scoreboard(20*1e6, market_df, rounds_df, standings_df)
     elif trigger == 'scoreboard-slider':
         show = {'display': 'block', 'margin': '1rem'}
-        data, styles = api.show_scoreboard(budget, market_df, rounds_df)
+        data, styles = api.show_scoreboard(budget*1e6, market_df, rounds_df, standings_df)
     else:
         data, styles, show = no_update, no_update, no_update
     # Output

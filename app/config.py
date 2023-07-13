@@ -6,7 +6,8 @@ url = {
     'login': 'https://biwenger.as.com/api/v2/auth/login',
     'market': 'https://biwenger.as.com/api/v2/league/',
     'players': 'https://cf.biwenger.com/api/v2/competitions/la-liga/data?lang=es&score=1&callback=jsonp_1465365482',
-    'advanced': 'https://apim.laliga.com/public-service/api/v1/subscriptions/laliga-santander-2022/players/'
+    'advanced': 'https://apim.laliga.com/public-service/api/v1/subscriptions/laliga-santander-2022/players/',
+    'standings': 'https://biwenger.as.com/api/v2/league?include=all&fields=*,standings,tournaments,group,settings(description)'
 }
 
 
