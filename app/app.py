@@ -33,10 +33,10 @@ def login(button, email, password, user, league):
             # Enter demo mode when login form is not filled
             if not email and not password and not user and not league:
                 app_data = {
-                    'market': pd.read_excel('../data/market.xlsx').to_json(),
-                    'rounds': pd.read_excel('../data/rounds.xlsx').to_json(),
-                    'players': pd.read_excel('../data/players.xlsx').to_json(),
-                    'advanced': pd.read_excel('../data/advanced.xlsx').to_json(),
+                    'market': pd.read_excel('./data/market.xlsx').to_json(),
+                    'rounds': pd.read_excel('./data/rounds.xlsx').to_json(),
+                    'players': pd.read_excel('./data/players.xlsx').to_json(),
+                    'advanced': pd.read_excel('./data/advanced.xlsx').to_json(),
                 }
             # Else create a session and login
             else:
