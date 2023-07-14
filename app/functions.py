@@ -3,16 +3,18 @@ import requests
 import numpy as np
 import pandas as pd
 import seaborn as sns
+import sqlalchemy as db
 import plotly.express as px
 import plotly.graph_objs as go
 from time import strftime, localtime
+from database import user, server, password
 from plotly.express.colors import sample_colorscale
-from config import url, chart_options, advanced_stats, laliga_map
+from config import url, chart_options, advanced_stats
 
 
 # ------------------------------------- API ----------------------------------------
 
-def login(email, password):
+def get_login(email, password):
     '''
     Logs in to Biwenger using the credentials set in config.py
 
@@ -164,86 +166,35 @@ def get_standings(session, token, league, user):
 
     return df
 
-def get_advanced_stats(session):
 
-    # HTTP request variables
-    limit = 100
-    offset = 0
-    players = list()
+def get_advanced_stats():
+    '''
+    Connects to a PostgreSQL database hosted in ElephantSQL and
+    queries all the data from table 'players', which contains the
+    advanced statistics for all the players in LaLiga. Note: this
+    table is updated weekly by the devs of this app.
 
-    while True:
-        # Request batch of the players
-        stats = session.get(
-            url = url['advanced'] + f'stats?limit={limit}&offset={offset}&orderField=name&orderType=ASC',
-            headers={"ocp-apim-subscription-key": "c13c3a8e2f6b46da9c5c425cf61fab3e"},
-        )
-        # While data is returned
-        if stats.json():
-            if stats.status_code == 200:
-                # Append returned data
-                players.append(stats.json()['player_stats'])
-                offset += 100
-            else:
-                raise Exception(f'Stats | Status code = {stats.status_code}')
-        # When all data have been returned
-        else:
-            # Flatten gathered list
-            players = [item for sublist in players for item in sublist]
-            # Create dataframe
-            df = pd.DataFrame(players)
-            # Explode stats into columns
-            df = pd.concat(
-                objs=[
-                    df.drop('stats', axis=1),
-                    pd.DataFrame(
-                        [{x['name']: x['stat'] for x in row} for row in
-                         df['stats']])],
-                axis=1
-            )
-            # Fill NaNs with zeroes
-            df.fillna(value=0, inplace=True)
-            # Map name of positions between LaLiga and Football fantasy
-            df['position'] = df['position'].apply(lambda x: laliga_map[x['name']] if x else 'undefined')
-            return df
+    :returns: dataframe containing the players stats.
+    '''
+
+    # Setup SQLalchemy connection to ElephantSQL
+    engine = db.create_engine(url=f'postgresql://{user}:{password}@{server}/{user}', echo=True)
+    conn = engine.connect()
+    metadata = db.MetaData()
+
+    # Query table
+    players_table = db.Table('players', metadata, autoload_with=engine)
+    players_data = conn.execute(players_table.select()).fetchall()
+    players_df = pd.DataFrame(players_data)
+
+    # Close connection
+    conn.close()
+    engine.dispose()
+
+    return players_df
 
 
 # ----------------------------- Data analysis --------------------------------------
-
-def show_scoreboard(initial_budget, market_df, rounds_df, standings_df):
-    '''
-    Creates a table showing the economic balance and current poitns of the
-    league members.
-
-    :param initial_budget: initial budget in (€) millions set by the league.
-    :param market_df: market dataframe.
-    :param rounds_df: rounds dataframe.
-    :param standings_df: standings dataframe.
-    :return: data to show in the table as a dict.
-    '''
-
-    # Prepare output
-    df = standings_df.copy()
-    df.insert(loc=standings_df.shape[1], column='balance', value=[initial_budget]*len(standings_df))
-    # Extract sells and buys
-    if not market_df.empty:
-        sell_df = market_df.groupby('seller')['amount'].sum().reset_index()
-        buy_df = market_df.groupby('buyer')['amount'].sum().reset_index()
-        # Update balance
-        df['balance'] -= df.apply(lambda x: buy_df.loc[buy_df['buyer'] == x['name']]['amount'].values[0]
-                                            if x['name'] in buy_df['buyer'].to_list() else 0, axis=1)
-        df['balance'] += df.apply(lambda x: sell_df.loc[sell_df['seller'] == x['name']]['amount'].values[0]
-                                            if x['name'] in sell_df['seller'].to_list() else 0, axis=1)
-    # Extract bonuses
-    if not rounds_df.empty:
-        bonus_df = rounds_df.groupby('member', as_index=False)['bonus'].sum()
-        # Update balance
-        df['balance'] += df.apply(lambda x: bonus_df.loc[bonus_df['member'] == x['name']]['bonus'].values[0]
-                                  if x['name'] in bonus_df['member'].to_list() else 0, axis=1)
-    # Get color scale for the balance column
-    styles = discrete_background_color_bins(df=df, columns=['balance'])
-
-    return df.to_dict('records'), styles
-
 
 def plot_player_efficiency(players_df):
     '''
@@ -380,23 +331,71 @@ def plot_advanced(advanced_df, name1, name2):
     return fig
 
 
-def get_table_lastseason(players_df, position='forward', bounds=[0, 100], N=10):
+def show_lastseason(players_df, position='forward', bounds=[0, 100], N=10):
+    '''
+    Returns the list of players who performed best during last season.
+
+    :param players_df: players df.
+    :param position: position to compare.
+    :param bounds: price bounds to compare.
+    :param N: number of players to compare.
+    :return: dictionary containing the resulting players.
+    '''
+
     # Columns to keep
     cols = ['name', 'position', 'status', 'price', 'pointsLastSeason']
     df = players_df[cols].copy()
+
     # Segment data
     df_pos = df.loc[(df['position'] == position) & (bounds[0]*1e6 <= df['price']) & (df['price'] <= bounds[1]*1e6)]
     df_pos = df_pos.sort_values(by=['pointsLastSeason'], ascending=False)
     df_pos.drop(labels='position', axis=1, inplace=True)
     df_pos.reset_index(drop=True, inplace=True)
     df_pos_top = df_pos.loc[0:N-1]
+
     # Get table styles
-    styles = discrete_background_color_bins(df=df_pos_top, columns=['pointsLastSeason'])
+    styles = show_background_colors(df=df_pos_top, columns=['pointsLastSeason'])
 
     return df_pos_top.to_dict('records'), styles
 
 
-def discrete_background_color_bins(df, columns, n_bins=7):
+def show_scoreboard(initial_budget, market_df, rounds_df, standings_df):
+    '''
+    Creates a table showing the economic balance and current poitns of the
+    league members.
+
+    :param initial_budget: initial budget in (€) millions set by the league.
+    :param market_df: market dataframe.
+    :param rounds_df: rounds dataframe.
+    :param standings_df: standings dataframe.
+    :return: data to show in the table as a dict.
+    '''
+
+    # Prepare output
+    df = standings_df.copy()
+    df.insert(loc=standings_df.shape[1], column='balance', value=[initial_budget]*len(standings_df))
+    # Extract sells and buys
+    if not market_df.empty:
+        sell_df = market_df.groupby('seller')['amount'].sum().reset_index()
+        buy_df = market_df.groupby('buyer')['amount'].sum().reset_index()
+        # Update balance
+        df['balance'] -= df.apply(lambda x: buy_df.loc[buy_df['buyer'] == x['name']]['amount'].values[0]
+                                            if x['name'] in buy_df['buyer'].to_list() else 0, axis=1)
+        df['balance'] += df.apply(lambda x: sell_df.loc[sell_df['seller'] == x['name']]['amount'].values[0]
+                                            if x['name'] in sell_df['seller'].to_list() else 0, axis=1)
+    # Extract bonuses
+    if not rounds_df.empty:
+        bonus_df = rounds_df.groupby('member', as_index=False)['bonus'].sum()
+        # Update balance
+        df['balance'] += df.apply(lambda x: bonus_df.loc[bonus_df['member'] == x['name']]['bonus'].values[0]
+                                  if x['name'] in bonus_df['member'].to_list() else 0, axis=1)
+    # Get color scale for the balance column
+    styles = show_background_colors(df=df, columns=['balance'])
+
+    return df.to_dict('records'), styles
+
+
+def show_background_colors(df, columns):
     '''
     Colors each cell in the table according to their value. This
     function was copied from the plotly official documentation:
@@ -404,7 +403,6 @@ def discrete_background_color_bins(df, columns, n_bins=7):
     #highlighting-cells-by-value-with-a-colorscale-like-a-heatmap
 
     :param df: dataframe containing the table info.
-    :param n_bins: number of bins to consider.
     :param columns: columns to apply the coloring.
     :return: style to apply to the dash table.
     '''

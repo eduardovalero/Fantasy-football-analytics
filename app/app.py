@@ -41,11 +41,11 @@ def login(button, email, password, user, league):
                 }
             # Else create a session and login
             else:
-                session, token = api.login(email, password)
+                session, token = api.get_login(email, password)
                 # Request all data
                 market_df, rounds_df = api.get_market(session, token, epoch, league, user)
                 players_df = api.get_players(session)
-                advanced_df = api.get_advanced_stats(session)
+                advanced_df = api.get_advanced_stats()
                 standings_df = api.get_standings(session, token, league, user)
                 # Convert to JSON
                 market_json = market_df.to_json() if not market_df.empty else "{}"
@@ -168,13 +168,13 @@ def update_table(btn_lastseason, radio, slider, app_data):
     players_df = pd.DataFrame(json.loads(app_data['players']))
     # Deliver desired info
     if trigger == 'btn-lastseason':
-        data, styles = api.get_table_lastseason(players_df)
+        data, styles = api.show_lastseason(players_df)
         return data, styles, {'display': 'block', 'margin': '1rem'}
     elif trigger in ['lastseason-radio', 'lastseason-slider']:
         # Deliver desired info
         position = radio
         bounds = slider
-        data, styles = api.get_table_lastseason(players_df, position, bounds)
+        data, styles = api.show_lastseason(players_df, position, bounds)
         return data, styles, {'display': 'block', 'margin': '1rem'}
     else:
         no_update, no_update, no_update
