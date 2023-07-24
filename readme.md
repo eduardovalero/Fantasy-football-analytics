@@ -1,4 +1,4 @@
-# 0. Disclaimer
+# Disclaimer
 This project is currently under development. Some functionalities may not be available yet.
 To try this application, run './app/app.py', leave the login form fields blank and click 'Sign in'
 
